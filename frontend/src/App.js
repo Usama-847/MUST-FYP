@@ -19,6 +19,7 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
+import ExercisePlanner from "./pages/ExercisePlanner"; // Added import
 
 const App = () => {
   return (
@@ -35,19 +36,21 @@ const App = () => {
             element={<NutritionChecker />}
           />
           <Route path="/pages/bmr-calculator" element={<BMRCalculator />} />
+          <Route
+            path="/pages/exercise-planner"
+            element={<ExercisePlanner />}
+          />{" "}
+          {/* Added route */}
           <Route path="/pages/about" element={<About />} />
-
           {/* Public Route */}
           <Route path="" element={<PublicRoute />}>
             <Route path="/pages/register" element={<Register />} />
             <Route path="/pages/login" element={<Login />} />
           </Route>
-
           {/* Private Route */}
           <Route path="" element={<PrivateRoute />}>
             <Route path="/pages/profile/*" element={<Profile />} />
           </Route>
-
           {/* 404 Page */}
           <Route path="*" element={<NotFound />} />
         </Routes>

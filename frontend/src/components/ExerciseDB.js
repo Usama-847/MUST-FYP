@@ -17,7 +17,7 @@ const ExercisePage = () => {
       method: "GET",
       url: `https://exercisedb.p.rapidapi.com/exercises/bodyPart/${selectedMuscle}`,
       headers: {
-        "X-RapidAPI-Key": "3190d2cd3amshe401585bbe87576p18b44djsn7669ffd89aa8",
+        "X-RapidAPI-Key": "24dff9aecamshd5f49c84e8c54d0p1942d8jsn1c47fdcf05c3",
         "X-RapidAPI-Host": "exercisedb.p.rapidapi.com",
       },
     };
@@ -47,7 +47,7 @@ const ExercisePage = () => {
 
   return (
     <div>
-        <h2>Search For A Perfect Exercise</h2>
+      <h2>Search For A Perfect Exercise</h2>
       <div className="select-container">
         <select value={selectedMuscle} onChange={handleMuscleChange}>
           <option value="">Select A Muscle Group</option>
@@ -62,7 +62,9 @@ const ExercisePage = () => {
           <option value="upper%20legs">Upper Legs</option>
           <option value="waist">Waist</option>
         </select>
-        <button onClick={handleSearch} className="mx-3">Search</button>
+        <button onClick={handleSearch} className="mx-3">
+          Search
+        </button>
       </div>
       {currentExercises.length > 0 ? (
         <div className="exercise-container">
