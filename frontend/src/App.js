@@ -19,6 +19,11 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
+<<<<<<< Updated upstream
+=======
+import ExercisePlanner from "./pages/ExercisePlanner"; 
+import Dashboard from "./pages/Dashboard";
+>>>>>>> Stashed changes
 
 const App = () => {
   return (
@@ -35,6 +40,18 @@ const App = () => {
             element={<NutritionChecker />}
           />
           <Route path="/pages/bmr-calculator" element={<BMRCalculator />} />
+<<<<<<< Updated upstream
+=======
+          <Route
+            path="/pages/exercise-planner"
+            element={<ExercisePlanner />}
+          />{" "}
+          <Route
+            path="/pages/dashboard"
+            element={<Dashboard />}
+          />
+          {/* Added route */}
+>>>>>>> Stashed changes
           <Route path="/pages/about" element={<About />} />
 
           {/* Public Route */}
