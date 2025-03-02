@@ -142,3 +142,15 @@
       width: 280px;
     }
   } */
+.reveal .day {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: reveal 0.5s ease-out forwards;
+}
+
+@keyframes reveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

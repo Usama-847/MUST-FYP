@@ -1,9 +1,6 @@
 import asyncHandler from "express-async-handler";
 import Status from "../models/userStatusModel.js";
 
-// @desc      Create user status
-// @route     POST /api/user/status
-// @access    Private
 const createUserStatus = asyncHandler(async (req, res) => {
   const {
     height,

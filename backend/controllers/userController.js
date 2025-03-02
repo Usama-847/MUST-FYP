@@ -11,11 +11,17 @@ const authUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
 
   if (user && (await user.matchPassword(password))) {
-    generateToken(res, user._id);
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
+    // Generate token and set cookie
+    const token = generateToken(res, user._id);
+
+    // Return user and token
+    res.status(200).json({
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+      token,
     });
   } else {
     res.status(401);
@@ -43,11 +49,14 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (user) {
-    generateToken(res, user._id);
+    // Generate token
+    const token = generateToken(user._id);
+
     res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email,
+      token,
     });
   } else {
     res.status(400);
@@ -103,7 +112,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     });
   } else {
     res.status(404);
-    throw new Error('User Not Found');
+    throw new Error("User Not Found");
   }
 });
 

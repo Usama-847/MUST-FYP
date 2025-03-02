@@ -5,7 +5,6 @@ import generateWorkoutPlan from "../utils/planGenerator.js";
 
 const router = express.Router();
 
-// Generate a workout plan
 router.post("/generate", async (req, res) => {
   try {
     const { weight, goal, fitnessLevel, daysPerWeek, limitations } = req.body;

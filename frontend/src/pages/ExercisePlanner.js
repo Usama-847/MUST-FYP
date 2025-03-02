@@ -1,14 +1,12 @@
-// Exercise Planner - Main Component
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-// Components
 import UserForm from "../components/UserForm";
 import WorkoutPlan from "../components/WorkoutPlans";
 import Tips from "../components/Tips";
 import LoadingSpinner from "../components/LoadingSpinner";
+import ThinkingAnimation from "../components/ThinkingAnimation";
 
 const ExercisePlanner = () => {
   const [userData, setUserData] = useState({
@@ -22,6 +20,8 @@ const ExercisePlanner = () => {
   const [workoutPlan, setWorkoutPlan] = useState(null);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
+  const [isThinking, setIsThinking] = useState(false);
+  const [isRevealing, setIsRevealing] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -61,12 +61,16 @@ const ExercisePlanner = () => {
       return;
     }
 
-    setLoading(true);
+    // Start thinking phase and API call
+    setIsThinking(true);
+    const apiPromise = axios.post("/api/workouts/generate", userData);
+    const timerPromise = new Promise((resolve) => setTimeout(resolve, 5000));
 
     try {
-      // Call backend API to generate workout plan
-      const response = await axios.post("/api/workouts/generate", userData);
+      const [response] = await Promise.all([apiPromise, timerPromise]);
       setWorkoutPlan(response.data);
+      setIsThinking(false);
+      setIsRevealing(true);
 
       // Save to history if user is logged in
       if (user) {
@@ -89,8 +93,7 @@ const ExercisePlanner = () => {
     } catch (error) {
       console.error("Error generating workout plan:", error);
       toast.error("Failed to generate workout plan. Please try again.");
-    } finally {
-      setLoading(false);
+      setIsThinking(false);
     }
   };
 
@@ -131,8 +134,10 @@ const ExercisePlanner = () => {
       {/* Header */}
       <header className="bg-gradient-to-r from-blue-600 to-teal-500 text-white py-12 px-4">
         <div className="container mx-auto text-center">
-          <h1 className="text-4xl font-bold mb-2">Exercise Planner</h1>
-          <p className="text-xl opacity-90">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">
+            Exercise Planner
+          </h1>
+          <p className="text-lg md:text-xl opacity-90">
             Customized workout plans tailored to your specific weight and
             fitness goals
           </p>
@@ -142,10 +147,9 @@ const ExercisePlanner = () => {
       <div className="container mx-auto px-4 py-8">
         {/* User Input Form */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-2xl font-semibold mb-6">
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-800 mb-6">
             Create Your Personalized Workout Plan
           </h2>
-
           <UserForm
             userData={userData}
             handleInputChange={handleInputChange}
@@ -153,34 +157,35 @@ const ExercisePlanner = () => {
           />
         </div>
 
-        {/* Loading State */}
-        {loading && (
-          <div className="flex justify-center my-8">
-            <LoadingSpinner />
-          </div>
-        )}
+        {/* Thinking Animation */}
+        {isThinking && <ThinkingAnimation />}
 
         {/* Results Section */}
-        {workoutPlan && !loading && (
+        {workoutPlan && !isThinking && (
           <>
             <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-semibold">
+              <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+                <h2 className="text-xl md:text-2xl font-semibold text-gray-800 mb-4 md:mb-0">
                   Your Personalized Workout Plan
                 </h2>
                 <button
                   onClick={saveWorkoutPlan}
-                  className="px-4 py-2 bg-teal-500 text-white rounded hover:bg-teal-600 transition"
+                  className="px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition duration-300"
                 >
                   Save Plan
                 </button>
               </div>
-
-              <WorkoutPlan plan={workoutPlan} userWeight={userData.weight} />
+              <WorkoutPlan
+                plan={workoutPlan}
+                userWeight={userData.weight}
+                isRevealing={isRevealing}
+              />
             </div>
 
             <div className="bg-teal-50 border-l-4 border-teal-500 rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-semibold mb-4">Tips For Success</h2>
+              <h2 className="text-xl md:text-2xl font-semibold text-teal-600 mb-4">
+                Tips For Success
+              </h2>
               <Tips goal={userData.goal} fitnessLevel={userData.fitnessLevel} />
             </div>
           </>
@@ -189,11 +194,13 @@ const ExercisePlanner = () => {
 
       <footer className="mt-12 py-6 bg-gray-100 text-center text-gray-600">
         <div className="container mx-auto px-4">
-          <p className="mb-2">
+          <p className="mb-2 text-sm md:text-base">
             Always consult with a healthcare professional before starting any
             new exercise program.
           </p>
-          <p>&copy; 2025 Exercise Planner. All rights reserved.</p>
+          <p className="text-sm md:text-base">
+            © 2025 Exercise Planner. All rights reserved.
+          </p>
         </div>
       </footer>
     </div>

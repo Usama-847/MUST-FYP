@@ -24,6 +24,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/user", userStatusRoutes);
 app.use("/api/user", UserMealPlanRoutes);
 app.use("/api/workouts", workoutRoutes);
+app.use("/api/auth", userRoutes);
 
 if (process.env.NODE_ENV === "production") {
   const __dirname = path.resolve();
