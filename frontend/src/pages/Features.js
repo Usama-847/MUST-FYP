@@ -55,8 +55,6 @@ const FeaturesPage = () => {
         "Feature that helps you track how much water you drink each day. You can enter the amount of water you drink each time you take a drink.",
       link: "/pages/profile/meal-plan",
     },
-<<<<<<< Updated upstream
-=======
     {
       title: "Exercise Planner",
       description:
@@ -69,7 +67,6 @@ const FeaturesPage = () => {
         "In which AI plans the exercise for user based on their weight. Create customized workout plans tailored to your specific weight and fitness goals.",
       link: "/pages/dashboard",
     },
->>>>>>> Stashed changes
   ];
 
   return (
