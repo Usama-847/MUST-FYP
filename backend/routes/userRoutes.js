@@ -17,6 +17,8 @@ import { protect } from "../middleware/authMiddleware.js";
 router.post("/", registerUser);
 router.post("/auth", authUser);
 router.post("/logout", logoutUser);
+router.post("/login", authUser);
+router.get("/me", protect, getUserProfile);
 
 router
   .route("/profile")
