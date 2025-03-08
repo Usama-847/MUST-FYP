@@ -23,7 +23,8 @@ const Header = () => {
     try {
       await logoutApiCall().unwrap();
       dispatch(logout());
-      navigate("/");
+      // Force full page reload to clear any residual state
+      window.location.href = "/"; // Changed from navigate()
       toast.success("Logout Successfully!");
     } catch (err) {
       console.error(err);

@@ -1,6 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { Container, Row, Col, Card, Button } from "react-bootstrap";
+import { Container, Row, Col, Card } from "react-bootstrap";
 
 const HomeContent = () => {
   return (
@@ -21,8 +20,8 @@ const HomeContent = () => {
             <Card.Body>
               <Card.Title>Learn. Track. Improve.</Card.Title>
               <Card.Text>
-                Keeping a food diary helps you understand your habits and
-                to hit your goals.
+                Keeping a food diary helps you understand your habits and to hit
+                your goals.
               </Card.Text>
             </Card.Body>
           </Card>
@@ -33,8 +32,7 @@ const HomeContent = () => {
             <Card.Body>
               <Card.Title>Logging Simplified.</Card.Title>
               <Card.Text>
-                Save meals and use Quick Tools for
-                fast and easy food tracking.
+                Save meals and use Quick Tools for fast and easy food tracking.
               </Card.Text>
             </Card.Body>
           </Card>
@@ -60,17 +58,6 @@ const HomeContent = () => {
             Sign up for Shape Up and get started on your path to a healthier
             lifestyle.
           </p>
-          <Button
-            variant="success"
-            className="me-2"
-            as={Link}
-            to="/pages/register"
-          >
-            Register
-          </Button>
-          <Button variant="outline-primary" as={Link} to="/pages/login">
-            Login
-          </Button>
         </Col>
         <Col md={6}>
           <img

@@ -1,131 +1,136 @@
 import React from "react";
 
-const UserForm = ({ userData, handleInputChange, generateWorkoutPlan }) => {
+const UserForm = ({
+  userData,
+  handleInputChange,
+  generateWorkoutPlan,
+  isGenerating,
+}) => {
   return (
-    <form className="space-y-6">
-      <div>
-        <label
-          htmlFor="weight"
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
-          Your Weight (kg)
-        </label>
-        <input
-          type="number"
-          id="weight"
-          name="weight"
-          value={userData.weight}
-          onChange={handleInputChange}
-          min="30"
-          max="250"
-          required
-          placeholder="Enter your weight"
-          className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
-        />
+    <form onSubmit={(e) => e.preventDefault()}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="mb-4">
+          <label
+            htmlFor="weight"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Your Weight (kg)
+          </label>
+          <input
+            type="number"
+            id="weight"
+            name="weight"
+            value={userData.weight}
+            onChange={handleInputChange}
+            placeholder="Enter your weight"
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            required
+          />
+        </div>
+
+        <div className="mb-4">
+          <label
+            htmlFor="goal"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Your Fitness Goal
+          </label>
+          <select
+            id="goal"
+            name="goal"
+            value={userData.goal}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            required
+          >
+            <option value="">Select a goal</option>
+            <option value="Weight Loss">Weight Loss</option>
+            <option value="Muscle Gain">Muscle Gain</option>
+            <option value="Endurance">Endurance</option>
+            <option value="Flexibility">Flexibility</option>
+            <option value="General Fitness">General Fitness</option>
+          </select>
+        </div>
+
+        <div className="mb-4">
+          <label
+            htmlFor="fitnessLevel"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Your Current Fitness Level
+          </label>
+          <select
+            id="fitnessLevel"
+            name="fitnessLevel"
+            value={userData.fitnessLevel}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            required
+          >
+            <option value="">Select your level</option>
+            <option value="Beginner">Beginner (New to exercise)</option>
+            <option value="Intermediate">Intermediate (Some experience)</option>
+            <option value="Advanced">Advanced (Very experienced)</option>
+          </select>
+        </div>
+
+        <div className="mb-4">
+          <label
+            htmlFor="daysPerWeek"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Days Available For Exercise Per Week
+          </label>
+          <select
+            id="daysPerWeek"
+            name="daysPerWeek"
+            value={userData.daysPerWeek}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            required
+          >
+            <option value="">Select days</option>
+            <option value="2">2 days</option>
+            <option value="3">3 days</option>
+            <option value="4">4 days</option>
+            <option value="5">5 days</option>
+            <option value="6">6 days</option>
+          </select>
+        </div>
       </div>
 
-      <div>
-        <label
-          htmlFor="goal"
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
-          Your Fitness Goal
-        </label>
-        <select
-          id="goal"
-          name="goal"
-          value={userData.goal}
-          onChange={handleInputChange}
-          required
-          className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
-        >
-          <option value="" disabled>
-            Select your goal
-          </option>
-          <option value="weightLoss">Weight Loss</option>
-          <option value="muscleGain">Muscle Gain</option>
-          <option value="endurance">Improve Endurance</option>
-          <option value="general">General Fitness</option>
-        </select>
-      </div>
-
-      <div>
-        <label
-          htmlFor="fitnessLevel"
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
-          Your Current Fitness Level
-        </label>
-        <select
-          id="fitnessLevel"
-          name="fitnessLevel"
-          value={userData.fitnessLevel}
-          onChange={handleInputChange}
-          required
-          className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
-        >
-          <option value="" disabled>
-            Select your level
-          </option>
-          <option value="beginner">Beginner (New to exercise)</option>
-          <option value="intermediate">
-            Intermediate (Exercise 1-3 times weekly)
-          </option>
-          <option value="advanced">Advanced (Exercise 4+ times weekly)</option>
-        </select>
-      </div>
-
-      <div>
-        <label
-          htmlFor="daysPerWeek"
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
-          Days Available For Exercise Per Week
-        </label>
-        <select
-          id="daysPerWeek"
-          name="daysPerWeek"
-          value={userData.daysPerWeek}
-          onChange={handleInputChange}
-          required
-          className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
-        >
-          <option value="" disabled>
-            Select days per week
-          </option>
-          <option value="2">2 days</option>
-          <option value="3">3 days</option>
-          <option value="4">4 days</option>
-          <option value="5">5 days</option>
-          <option value="6">6 days</option>
-        </select>
-      </div>
-
-      <div>
+      <div className="mb-4">
         <label
           htmlFor="limitations"
           className="block text-sm font-medium text-gray-700 mb-1"
         >
           Any Physical Limitations or Injuries? (Optional)
         </label>
-        <input
-          type="text"
+        <textarea
           id="limitations"
           name="limitations"
           value={userData.limitations}
           onChange={handleInputChange}
           placeholder="E.g., knee injury, back pain, etc."
-          className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
+          rows={3}
+          className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
 
-      <button
-        type="button"
-        onClick={generateWorkoutPlan}
-        className="w-full bg-teal-500 hover:bg-teal-600 text-white font-medium py-3 px-6 rounded-md transition duration-200"
-      >
-        Generate My Workout Plan
-      </button>
+      <div className="mt-6">
+        <button
+          type="button"
+          onClick={generateWorkoutPlan}
+          disabled={isGenerating}
+          className={`w-full py-3 ${
+            isGenerating
+              ? "bg-gray-500 cursor-not-allowed"
+              : "bg-teal-500 hover:bg-teal-600"
+          } text-white font-medium rounded-md transition duration-300`}
+        >
+          {isGenerating ? "Generating..." : "Generate My Workout Plan"}
+        </button>
+      </div>
     </form>
   );
 };
