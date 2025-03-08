@@ -1,20 +1,26 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 
 const ThinkingAnimation = () => {
-  const [dots, setDots] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDots((prev) => (prev + 1) % 4);
-    }, 500);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <div className="text-center py-8">
-      <p className="text-xl md:text-5xl font-semibold text-gray-700 mt-20">
-        Generating your personalized workout plan{".".repeat(dots)}
-      </p>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white rounded-lg p-6 shadow-xl max-w-md w-full text-center">
+        <div className="mb-4">
+          <div className="inline-block animate-pulse">
+            <div className="flex space-x-2">
+              <div className="w-3 h-3 bg-teal-500 rounded-full animate-bounce"></div>
+              <div className="w-3 h-3 bg-teal-500 rounded-full animate-bounce delay-75"></div>
+              <div className="w-3 h-3 bg-teal-500 rounded-full animate-bounce delay-150"></div>
+            </div>
+          </div>
+        </div>
+        <h3 className="text-xl font-semibold text-gray-800 mb-2">
+          Creating Your Workout Plan
+        </h3>
+        <p className="text-gray-600">
+          Our AI is designing a personalized workout plan based on your fitness
+          goals and preferences...
+        </p>
+      </div>
     </div>
   );
 };

@@ -11,6 +11,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import PublicRoute from "./components/PublicRoute";
 import Home from "./pages/Home";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 import Features from "./pages/Features";
 import Workouts from "./pages/Workouts";
 import BMRCalculator from "./pages/BMRCalculator";
@@ -22,6 +23,7 @@ import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 import ExercisePlanner from "./pages/ExercisePlanner";
 import Dashboard from "./pages/Dashboard";
+import Ai from "./pages/Ai";
 
 // Create authentication context
 export const AuthContext = createContext();
@@ -94,7 +96,8 @@ const App = () => {
       <Container>
         <ToastContainer />
         <Box width="400px" sx={{ width: { x1: "1488px" } }} m="auto">
-          <Header />
+          {/* Only render Header when authenticated */}
+          {isAuthenticated && <Header />}
           {!loading && (
             <Routes>
               <Route path="/" element={<Home />} />
@@ -110,6 +113,7 @@ const App = () => {
                 element={<ExercisePlanner />}
               />
               <Route path="/pages/dashboard" element={<Dashboard />} />
+              <Route path="/pages/Ai" element={<Ai />} />
               <Route path="/pages/about" element={<About />} />
 
               {/* Public Route */}
@@ -128,6 +132,8 @@ const App = () => {
             </Routes>
           )}
         </Box>
+        {/* Only render Footer when authenticated */}
+        {isAuthenticated && <Footer />}
       </Container>
     </AuthContext.Provider>
   );

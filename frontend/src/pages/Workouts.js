@@ -3,10 +3,12 @@ import { Box } from "@mui/material";
 
 import ExercisePage from "../components/ExerciseDB";
 import Footer from "../components/Footer";
+import Header from "../components/Header";
 
 const Workouts = () => {
   return (
     <>
+      <Header />
       <Box
         sx={{
           display: "flex",

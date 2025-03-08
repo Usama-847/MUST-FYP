@@ -15,6 +15,7 @@ import { BsPersonCircle, BsListCheck, BsActivity } from "react-icons/bs";
 import FormContainer from "../components/FormContainer";
 import Footer from "../components/Footer";
 import Loader from "../components/Loader";
+import Header from "../components/Header";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -105,6 +106,7 @@ const Dashboard = () => {
 
   return (
     <div className="py-5">
+      <Header />
       <FormContainer>
         <h2 className="text-center mb-4">
           <BsPersonCircle className="me-2" />

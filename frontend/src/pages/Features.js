@@ -2,6 +2,7 @@ import React from "react";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
+import Header from "../components/Header";
 
 const FeatureCard = ({ title, description, link }) => {
   return (
@@ -53,7 +54,7 @@ const FeaturesPage = () => {
       title: "Water Intake Log",
       description:
         "Feature that helps you track how much water you drink each day. You can enter the amount of water you drink each time you take a drink.",
-      link: "/pages/profile/meal-plan",
+      link: "/pages/profile/water-intake",
     },
     {
       title: "Exercise Planner",
@@ -67,10 +68,17 @@ const FeaturesPage = () => {
         "In which AI plans the exercise for user based on their weight. Create customized workout plans tailored to your specific weight and fitness goals.",
       link: "/pages/dashboard",
     },
+    {
+      title: "AI ChatBot",
+      description:
+        "In which AI plans the exercise for user based on their weight. Create customized workout plans tailored to your specific weight and fitness goals.",
+      link: "/pages/Ai",
+    },
   ];
 
   return (
     <>
+      <Header />
       <Container className="mt-4">
         <h2 className="text-center mb-4">App Features</h2>
         <Row className="justify-content-center">

@@ -8,6 +8,7 @@ import UpdateProfile from "../components/UpdateProfile";
 import UpdateDietProfile from "../components/UpdateDietProfile";
 import MealPlan from "../components/MealPlan";
 import WaterIntake from "../components/WaterIntake";
+import Header from "../components/Header";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -19,6 +20,7 @@ const Profile = () => {
 
   return (
     <Row>
+      <Header />
       <Col md={3}>
         <ProfileSidebar userInfo={userInfo} dispatch={dispatch} />
       </Col>
