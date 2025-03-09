@@ -9,7 +9,7 @@ const port = process.env.PORT || 5123;
 import userRoutes from "./routes/userRoutes.js";
 import userStatusRoutes from "./routes/userStatusRoutes.js";
 import UserMealPlanRoutes from "./routes/UserMealPlanRoutes.js";
-import workoutRoutes from "./routes/workout.js";
+import workoutRoutes from "./routes/workoutRoutes.js";
 
 connectDB();
 
