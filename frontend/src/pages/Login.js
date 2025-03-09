@@ -16,7 +16,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
-  const dispath = useDispatch();
+  const dispatch = useDispatch(); // Fixed typo in variable name (dispath -> dispatch)
 
   const [login, { isLoading }] = useLoginMutation();
 
@@ -24,7 +24,7 @@ const Login = () => {
 
   useEffect(() => {
     if (userInfo) {
-      navigate("/");
+      navigate("/pages/features"); // Changed from "/" to "/pages/features"
     }
   }, [navigate, userInfo]);
 
@@ -32,8 +32,8 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await login({ email, password }).unwrap();
-      dispath(setCredentials({ ...res }));
-      navigate("/");
+      dispatch(setCredentials({ ...res })); // Fixed typo in variable name
+      navigate("/pages/features"); // Changed from "/" to "/pages/features"
       toast.success("Login Successfully!");
     } catch (err) {
       toast.error(err?.data?.message || err.error);

@@ -1,3 +1,5 @@
+// utils/planGenerator.js
+
 const goalToText = (goal) => {
   const goalMap = {
     weightLoss: "weight loss",
@@ -674,13 +676,48 @@ const generateWorkoutPlan = (
     days.push(day);
   }
 
-  // Return the complete plan
+  // Format the workout plan to match the API response structure
   return {
     summary,
-    days,
+    workoutDays: days.map((day, index) => {
+      const dayNames = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ];
+      return {
+        day: dayNames[index],
+        focus: day.focus,
+        warmup: day.warmup,
+        exercises: day.exercises.map((exercise) => ({
+          name: exercise.name,
+          sets: exercise.sets,
+          reps: exercise.reps,
+          weight: exercise.weight
+            ? calculateWeight(weight, exercise.weightPercentage)
+            : "bodyweight",
+          notes: exercise.notes || "",
+        })),
+        cooldown: day.cooldown,
+      };
+    }),
   };
 };
 
-// Export both as named exports and default export
-// export { generateWorkoutPlan };
+// Helper function to calculate weight based on user's weight and percentage
+const calculateWeight = (userWeight, percentage) => {
+  if (!userWeight || !percentage) return "moderate";
+
+  const weightInLbs = parseFloat(userWeight);
+  if (isNaN(weightInLbs)) return "moderate";
+
+  const calculatedWeight = Math.round(weightInLbs * percentage);
+  return `${calculatedWeight} lbs`;
+};
+
+// Export the generator function
 export default generateWorkoutPlan;

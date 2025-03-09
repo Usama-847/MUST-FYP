@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSelector } from "react-redux";
 import UserForm from "../components/UserForm";
 import WorkoutPlan from "../components/WorkoutPlans";
 import Tips from "../components/Tips";
 import ThinkingAnimation from "../components/ThinkingAnimation";
 import Header from "../components/Header";
+import UserModal from "../components/UserModal";
 
 const ExercisePlanner = () => {
   const [userData, setUserData] = useState({
@@ -19,31 +21,16 @@ const ExercisePlanner = () => {
 
   const [workoutPlan, setWorkoutPlan] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState(null);
   const [isThinking, setIsThinking] = useState(false);
   const [isRevealing, setIsRevealing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  // Get user from Redux store
+  const { userInfo } = useSelector((state) => state.auth);
 
   // Add ref for the results section
   const resultsRef = useRef(null);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (token) {
-          const response = await axios.get("/api/auth/me", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          setUser(response.data);
-        }
-      } catch (error) {
-        console.error("Authentication error:", error);
-      }
-    };
-
-    checkAuth();
-  }, []);
 
   // Add effect to scroll to results when workout plan is generated
   useEffect(() => {
@@ -85,23 +72,6 @@ const ExercisePlanner = () => {
       setIsRevealing(true);
       setIsGenerating(false);
 
-      // Save to history if user is logged in
-      if (user) {
-        await axios.post(
-          "/api/workouts/save",
-          {
-            userId: user._id,
-            planData: response.data,
-            userInputs: userData,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-      }
-
       toast.success("Workout plan generated successfully!");
     } catch (error) {
       console.error("Error generating workout plan:", error);
@@ -111,8 +81,8 @@ const ExercisePlanner = () => {
     }
   };
 
-  const saveWorkoutPlan = async () => {
-    if (!user) {
+  const handleSaveClick = () => {
+    if (!userInfo) {
       toast.info("Please login to save your workout plan");
       return;
     }
@@ -122,23 +92,25 @@ const ExercisePlanner = () => {
       return;
     }
 
-    try {
-      await axios.post(
-        "/api/workouts/favorite",
-        {
-          userId: user._id,
-          planId: workoutPlan._id,
-        },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
+    setShowModal(true);
+  };
 
-      toast.success("Workout plan saved to favorites!");
-    } catch (error) {
-      console.error("Error saving workout plan:", error);
-      toast.error("Failed to save workout plan");
+  const handleViewSavedPlans = () => {
+    if (!userInfo) {
+      toast.info("Please login to view your saved plans");
+      return;
     }
+
+    setShowModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowModal(false);
+  };
+
+  const handlePlanSaved = (savedPlan) => {
+    // You can update the current workout plan with the saved version if needed
+    setWorkoutPlan(savedPlan);
   };
 
   return (
@@ -148,6 +120,15 @@ const ExercisePlanner = () => {
 
       {/* Thinking Animation Overlay */}
       {isThinking && <ThinkingAnimation />}
+
+      {/* User Modal for Saving and Viewing Plans */}
+      <UserModal
+        show={showModal}
+        handleClose={handleModalClose}
+        workoutPlan={workoutPlan}
+        userData={userData}
+        onSave={handlePlanSaved}
+      />
 
       {/* Header - Reduced padding */}
       <header className="bg-gradient-to-r from-blue-600 to-teal-500 text-white py-6 px-4">
@@ -165,9 +146,19 @@ const ExercisePlanner = () => {
       <div className="container mx-auto px-4 py-6 max-w-4xl">
         {/* User Input Form - Made more compact */}
         <div className="bg-white rounded-lg shadow-md p-5 mb-6">
-          <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-4">
-            Create Your Personalized Workout Plan
-          </h2>
+          <div className="flex flex-col md:flex-row justify-between items-center mb-4">
+            <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-0">
+              Create Your Personalized Workout Plan
+            </h2>
+            {userInfo && (
+              <button
+                onClick={handleViewSavedPlans}
+                className="px-4 py-1.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300"
+              >
+                View Your Saved Plans
+              </button>
+            )}
+          </div>
           <UserForm
             userData={userData}
             handleInputChange={handleInputChange}
@@ -185,7 +176,7 @@ const ExercisePlanner = () => {
                   Your Personalized Workout Plan
                 </h2>
                 <button
-                  onClick={saveWorkoutPlan}
+                  onClick={handleSaveClick}
                   className="px-4 py-1.5 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition duration-300"
                 >
                   Save Plan
