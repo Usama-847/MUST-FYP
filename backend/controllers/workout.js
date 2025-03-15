@@ -1,180 +1,84 @@
-// controllers/workoutController.js
 import asyncHandler from "express-async-handler";
 import Workout from "../models/WorkoutPlan.js";
 import User from "../models/userModel.js";
+import { generateContent } from "../utils/geminiService.js";
 
-// @desc    Generate a workout plan
+// @desc    Generate a workout plan using Gemini AI
 // @route   POST /api/workouts/generate
 // @access  Public
 const generateWorkoutPlan = asyncHandler(async (req, res) => {
-  const { weight, goal, fitnessLevel, daysPerWeek, limitations } = req.body;
+  const { weight, height, goal, fitnessLevel, daysPerWeek, limitations } =
+    req.body;
 
-  // This is where you'd integrate with your workout generation logic
-  // For now, let's assume that logic exists elsewhere and returns a plan
+  try {
+    // Construct prompt for Gemini
+    const prompt = `Generate a detailed ${daysPerWeek} day workout plan for a person with the following characteristics:
+    - Weight: ${weight} kg/lbs
+    - Height: ${height} cm/ft
+    - Goal: ${goal}
+    - Fitness level: ${fitnessLevel}
+    - Days available per week: ${daysPerWeek}
+    ${
+      limitations
+        ? `- Limitations or injuries: ${limitations}`
+        : "- No specific limitations"
+    }
+    
+    The workout plan should include:
+    1. A brief summary of the plan
+    2. Daily workouts with:
+       - Day name (Monday, Tuesday, etc.)
+       - Focus area (Upper Body, Lower Body, etc.)
+       - 4-5 specific exercises with sets, reps, and weight guidelines
+    3. Three specific tips for achieving their ${goal} goal
+    
+    Format the response as a JSON object with the following structure:
+    {
+      "summary": "Brief description of the plan",
+      "workoutDays": [
+        {
+          "day": "Day name",
+          "focus": "Focus area",
+          "exercises": [
+            {
+              "name": "Exercise name",
+              "sets": number,
+              "reps": "rep range or time",
+              "weight": "weight guideline"
+            }
+          ]
+        }
+      ],
+      "tips": [
+        "Tip 1",
+        "Tip 2",
+        "Tip 3"
+      ]
+    }`;
 
-  // Sample response structure
-  const workoutPlan = {
-    summary: `${daysPerWeek} day workout plan for ${goal} with ${fitnessLevel} fitness level`,
-    workoutDays: [],
-  };
+    // Call Gemini API
+    const aiResponse = await generateContent(prompt);
 
-  // Generate workout days based on the daysPerWeek input
-  const dayNames = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
-  const selectedDays = dayNames.slice(0, parseInt(daysPerWeek));
-
-  // Generate exercises based on the goal and fitness level
-  for (let i = 0; i < selectedDays.length; i++) {
-    const day = {
-      day: selectedDays[i],
-      focus: "",
-      exercises: [],
-    };
-
-    // Logic to populate the day's exercises would go here
-    // This is just placeholder data
-    if (goal === "Strength" || goal === "Muscle Building") {
-      switch (i % 3) {
-        case 0:
-          day.focus = "Upper Body";
-          day.exercises = [
-            {
-              name: "Bench Press",
-              sets: 4,
-              reps: "8-10",
-              weight: "based on fitness level",
-            },
-            {
-              name: "Shoulder Press",
-              sets: 3,
-              reps: "10-12",
-              weight: "moderate",
-            },
-            {
-              name: "Lat Pulldown",
-              sets: 3,
-              reps: "10-12",
-              weight: "moderate",
-            },
-            {
-              name: "Bicep Curls",
-              sets: 3,
-              reps: "12-15",
-              weight: "light to moderate",
-            },
-          ];
-          break;
-        case 1:
-          day.focus = "Lower Body";
-          day.exercises = [
-            {
-              name: "Squats",
-              sets: 4,
-              reps: "8-10",
-              weight: "based on fitness level",
-            },
-            { name: "Leg Press", sets: 3, reps: "10-12", weight: "heavy" },
-            { name: "Leg Curls", sets: 3, reps: "12-15", weight: "moderate" },
-            { name: "Calf Raises", sets: 3, reps: "15-20", weight: "moderate" },
-          ];
-          break;
-        case 2:
-          day.focus = "Core & Cardio";
-          day.exercises = [
-            { name: "Plank", sets: 3, reps: "30-60 sec", weight: "bodyweight" },
-            { name: "Russian Twists", sets: 3, reps: "15-20", weight: "light" },
-            {
-              name: "Mountain Climbers",
-              sets: 3,
-              reps: "20 each leg",
-              weight: "bodyweight",
-            },
-            { name: "HIIT Cardio", sets: 1, reps: "20 min", weight: "n/a" },
-          ];
-          break;
+    // Parse response - handle possible formatting issues
+    let workoutPlan;
+    try {
+      workoutPlan = JSON.parse(aiResponse);
+    } catch (parseError) {
+      // If JSON parsing fails, try to extract JSON from text response
+      const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        workoutPlan = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error("Failed to parse AI response");
       }
-    } else if (goal === "Weight Loss") {
-      // Weight loss focused workout with more cardio
-      day.focus = i % 2 === 0 ? "Full Body & Cardio" : "HIIT & Core";
-      day.exercises =
-        i % 2 === 0
-          ? [
-              {
-                name: "Circuit Training",
-                sets: 3,
-                reps: "15 reps each",
-                weight: "light",
-              },
-              {
-                name: "Jumping Jacks",
-                sets: 3,
-                reps: "30 sec",
-                weight: "bodyweight",
-              },
-              {
-                name: "Bodyweight Squats",
-                sets: 3,
-                reps: "15-20",
-                weight: "bodyweight",
-              },
-              {
-                name: "Steady State Cardio",
-                sets: 1,
-                reps: "30 min",
-                weight: "n/a",
-              },
-            ]
-          : [
-              { name: "Burpees", sets: 3, reps: "10-15", weight: "bodyweight" },
-              {
-                name: "Mountain Climbers",
-                sets: 3,
-                reps: "30 sec",
-                weight: "bodyweight",
-              },
-              {
-                name: "Plank",
-                sets: 3,
-                reps: "30-60 sec",
-                weight: "bodyweight",
-              },
-              {
-                name: "HIIT Intervals",
-                sets: 1,
-                reps: "20 min",
-                weight: "n/a",
-              },
-            ];
-    } else {
-      // General fitness plan
-      day.focus = [
-        "Upper Body",
-        "Lower Body",
-        "Full Body",
-        "Cardio",
-        "Core",
-        "Rest",
-        "Active Recovery",
-      ][i];
-      day.exercises = [
-        { name: "Exercise 1", sets: 3, reps: "10-12", weight: "moderate" },
-        { name: "Exercise 2", sets: 3, reps: "10-12", weight: "moderate" },
-        { name: "Exercise 3", sets: 3, reps: "10-12", weight: "moderate" },
-        { name: "Exercise 4", sets: 3, reps: "10-12", weight: "moderate" },
-      ];
     }
 
-    workoutPlan.workoutDays.push(day);
+    res.json(workoutPlan);
+  } catch (error) {
+    console.error("Error generating workout plan with AI:", error);
+    res.status(500);
+    throw new Error("Failed to generate workout plan");
   }
-
-  res.json(workoutPlan);
 });
 
 // @desc    Save a workout plan
@@ -258,7 +162,7 @@ const deleteWorkout = asyncHandler(async (req, res) => {
   const workout = await Workout.findById(req.params.id);
 
   if (workout && workout.user.toString() === req.user._id.toString()) {
-    await workout.deleteOne(); // Changed from remove() to deleteOne()
+    await workout.deleteOne();
     res.json({ message: "Workout plan removed" });
   } else {
     res.status(404);

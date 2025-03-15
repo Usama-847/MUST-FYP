@@ -1,24 +1,62 @@
-// models/workoutModel.js
 import mongoose from "mongoose";
 
-const workoutSchema = mongoose.Schema(
+const exerciseSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  sets: {
+    type: Number,
+    required: true,
+  },
+  reps: {
+    type: String,
+    required: true,
+  },
+  weight: {
+    type: String,
+    required: true,
+  },
+});
+
+const workoutDaySchema = new mongoose.Schema({
+  day: {
+    type: String,
+    required: true,
+  },
+  focus: {
+    type: String,
+    required: true,
+  },
+  exercises: [exerciseSchema],
+});
+
+const workoutPlanSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
       ref: "User",
+      required: true,
     },
     planName: {
       type: String,
       required: true,
     },
     planData: {
-      type: Object,
-      required: true,
+      summary: {
+        type: String,
+        required: true,
+      },
+      workoutDays: [workoutDaySchema],
+      tips: [String], // Added tips array
     },
     userInputs: {
-      type: Object,
-      required: true,
+      weight: String,
+      height: String, // Added height field
+      goal: String,
+      fitnessLevel: String,
+      daysPerWeek: String,
+      limitations: String,
     },
     isFavorite: {
       type: Boolean,
@@ -30,6 +68,6 @@ const workoutSchema = mongoose.Schema(
   }
 );
 
-const WorkoutPlans = mongoose.model("WorkoutPlans", workoutSchema);
+const WorkoutPlan = mongoose.model("WorkoutPlan", workoutPlanSchema);
 
-export default WorkoutPlans;
+export default WorkoutPlan;

@@ -24,6 +24,7 @@ import NotFound from "./pages/NotFound";
 import ExercisePlanner from "./pages/ExercisePlanner";
 import Dashboard from "./pages/Dashboard";
 import Ai from "./pages/Ai";
+import Contactus from "./pages/Contactus";
 
 // Create authentication context
 export const AuthContext = createContext();
@@ -103,18 +104,14 @@ const App = () => {
               <Route path="/" element={<Home />} />
               <Route path="/pages/features" element={<Features />} />
               <Route path="/pages/workouts" element={<Workouts />} />
-              <Route
-                path="/pages/nutrition-checker"
-                element={<NutritionChecker />}
-              />
-              <Route path="/pages/bmr-calculator" element={<BMRCalculator />} />
+              <Route path="/pages/contact" element={<Contactus />} />
+              <Route path="/pages/about" element={<About />} />
               <Route
                 path="/pages/exercise-planner"
                 element={<ExercisePlanner />}
               />
               <Route path="/pages/dashboard" element={<Dashboard />} />
               <Route path="/pages/Ai" element={<Ai />} />
-              <Route path="/pages/about" element={<About />} />
 
               {/* Public Route */}
               <Route path="" element={<PublicRoute />}>
