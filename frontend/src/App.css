@@ -1,9 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-/* body {
+ body {
     font-family: 'Josefin Sans';
-    background-color: #FFFAFB;
+    background-color: #160937;
   }
   
   * {
@@ -144,7 +144,7 @@
     .exercise-card {
       width: 280px;
     }
-  } */
+  } 
 .reveal .day {
   opacity: 0;
   transform: translateY(20px);
