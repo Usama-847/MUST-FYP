@@ -94,44 +94,42 @@ const App = () => {
 
   return (
     <AuthContext.Provider value={authContextValue}>
-      <Container>
-        <ToastContainer />
-        <Box width="400px" sx={{ width: { x1: "1488px" } }} m="auto">
-          {/* Only render Header when authenticated */}
-          {isAuthenticated && <Header />}
-          {!loading && (
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/pages/features" element={<Features />} />
-              <Route path="/pages/workouts" element={<Workouts />} />
-              <Route path="/pages/contact" element={<Contactus />} />
-              <Route path="/pages/about" element={<About />} />
-              <Route
-                path="/pages/exercise-planner"
-                element={<ExercisePlanner />}
-              />
-              <Route path="/pages/dashboard" element={<Dashboard />} />
-              <Route path="/pages/Ai" element={<Ai />} />
+      <ToastContainer />
+      <Box width="400px" sx={{ width: { x1: "1488px" } }} m="auto">
+        {/* Only render Header when authenticated */}
+        {isAuthenticated && <Header />}
+        {!loading && (
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/pages/features" element={<Features />} />
+            <Route path="/pages/workouts" element={<Workouts />} />
+            <Route path="/pages/contact" element={<Contactus />} />
+            <Route path="/pages/about" element={<About />} />
+            <Route
+              path="/pages/exercise-planner"
+              element={<ExercisePlanner />}
+            />
+            <Route path="/pages/dashboard" element={<Dashboard />} />
+            <Route path="/pages/Ai" element={<Ai />} />
 
-              {/* Public Route */}
-              <Route path="" element={<PublicRoute />}>
-                <Route path="/pages/register" element={<Register />} />
-                <Route path="/pages/login" element={<Login />} />
-              </Route>
+            {/* Public Route */}
+            <Route path="" element={<PublicRoute />}>
+              <Route path="/pages/register" element={<Register />} />
+              <Route path="/pages/login" element={<Login />} />
+            </Route>
 
-              {/* Private Route */}
-              <Route path="" element={<PrivateRoute />}>
-                <Route path="/pages/profile/*" element={<Profile />} />
-              </Route>
+            {/* Private Route */}
+            <Route path="" element={<PrivateRoute />}>
+              <Route path="/pages/profile/*" element={<Profile />} />
+            </Route>
 
-              {/* 404 Page */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          )}
-        </Box>
-        {/* Only render Footer when authenticated */}
-        {isAuthenticated && <Footer />}
-      </Container>
+            {/* 404 Page */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        )}
+      </Box>
+      {/* Only render Footer when authenticated */}
+      {isAuthenticated && <Footer />}
     </AuthContext.Provider>
   );
 };

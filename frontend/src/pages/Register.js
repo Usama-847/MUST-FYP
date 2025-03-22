@@ -1,10 +1,8 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Form, Button, Row, Col } from "react-bootstrap";
 import { BsLock } from "react-icons/bs";
 import { useDispatch, useSelector } from "react-redux";
-import FormContainer from "../components/FormContainer";
 import { useRegisterMutation } from "../slices/usersApiSlice";
 import { setCredentials } from "../slices/authSlice";
 import { toast } from "react-toastify";
@@ -47,63 +45,131 @@ const Register = () => {
   };
 
   return (
-    <div className=" py-5">
-      <FormContainer className="d-flex justify-content-center">
-        <h1>Register Account</h1>
-        <Form onSubmit={submitHandler}>
-          <Form.Group className="my-2" controlId="name">
-            <Form.Label>Name</Form.Label>
-            <Form.Control
-              type="name"
-              placeholder="Enter Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            ></Form.Control>
-          </Form.Group>
+    <div className="min-h-screen bg-[#160937] py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full mx-auto space-y-8">
+        {/* Header Section */}
+        <div className="text-center">
+          <div className="flex items-center justify-center mb-8">
+            <span className="bg-gradient-to-r from-[#00f2fe] to-[#ff00ff] text-transparent bg-clip-text text-3xl font-bold">
+              FITLY AI
+            </span>
+          </div>
+          <h2 className="mt-6 text-4xl font-extrabold text-white">
+            Create Account
+          </h2>
+          <p className="mt-2 text-sm text-gray-300">
+            Start your AI-powered fitness journey today
+          </p>
+        </div>
 
-          <Form.Group controlId="formEmail">
-            <Form.Label>Email address</Form.Label>
-            <Form.Control
-              type="email"
-              placeholder="Enter Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </Form.Group>
+        {/* Registration Form */}
+        <div className="bg-gray-900/50 rounded-2xl shadow-xl p-8 sm:p-10 backdrop-blur-lg border border-gray-800">
+          <form onSubmit={submitHandler} className="space-y-6">
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-200"
+              >
+                Name
+              </label>
+              <div className="mt-1">
+                <input
+                  id="name"
+                  type="text"
+                  placeholder="Enter your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00f2fe] focus:border-[#00f2fe] transition-all"
+                />
+              </div>
+            </div>
 
-          <Form.Group controlId="formPassword" className=" py-2">
-            <Form.Label>Password</Form.Label>
-            <Form.Control
-              type="password"
-              placeholder="Enter Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </Form.Group>
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-200"
+              >
+                Email address
+              </label>
+              <div className="mt-1">
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00f2fe] focus:border-[#00f2fe] transition-all"
+                />
+              </div>
+            </div>
 
-          <Form.Group controlId="confirmPassword" className="mb-2">
-            <Form.Label>Confirm Password</Form.Label>
-            <Form.Control
-              type="password"
-              placeholder="Enter Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            ></Form.Control>
-          </Form.Group>
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-200"
+              >
+                Password
+              </label>
+              <div className="mt-1">
+                <input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00f2fe] focus:border-[#00f2fe] transition-all"
+                />
+              </div>
+            </div>
 
-          {isLoading && <Loader />}
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-200"
+              >
+                Confirm Password
+              </label>
+              <div className="mt-1">
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00f2fe] focus:border-[#00f2fe] transition-all"
+                />
+              </div>
+            </div>
 
-          <Button variant="primary" type="submit">
-            <BsLock /> Sign Up
-          </Button>
+            {isLoading && (
+              <div className="flex justify-center">
+                <Loader />
+              </div>
+            )}
 
-          <Row className="py-3">
-            <Col>
-              Already Have An Account? <Link to="/pages/login">Login</Link>
-            </Col>
-          </Row>
-        </Form>
-      </FormContainer>
+            <button
+              type="submit"
+              className="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-lg 
+                        bg-gradient-to-r from-[#00f2fe] to-[#ff00ff] hover:from-[#00d4fe] hover:to-[#ff00dd] 
+                        text-white font-medium transition-all duration-300
+                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00f2fe]"
+            >
+              <BsLock className="mr-2 h-5 w-5" />
+              Create Account
+            </button>
+
+            <div className="text-center text-sm text-gray-400">
+              Already have an account?{" "}
+              <Link
+                to="/pages/login"
+                className="font-medium text-[#00f2fe] hover:text-[#ff00ff] transition-colors duration-200"
+              >
+                Sign in
+              </Link>
+            </div>
+          </form>
+        </div>
+      </div>
       <Footer />
     </div>
   );
