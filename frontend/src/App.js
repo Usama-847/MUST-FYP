@@ -109,6 +109,11 @@ const App = () => {
               path="/pages/exercise-planner"
               element={<ExercisePlanner />}
             />
+            <Route path="/pages/bmr-calculator" element={<BMRCalculator />} />
+            <Route
+              path="/pages/nutrition-checker"
+              element={<NutritionChecker />}
+            />
             <Route path="/pages/dashboard" element={<Dashboard />} />
             <Route path="/pages/Ai" element={<Ai />} />
 
