@@ -7,17 +7,17 @@ import { generateContent } from "../utils/geminiService.js";
 // @route   POST /api/workouts/generate
 // @access  Public
 const generateWorkoutPlan = asyncHandler(async (req, res) => {
-  const { weight, height, goal, fitnessLevel, daysPerWeek, limitations } =
+  const { weight, height, goal, fitnessLevel, selectedDays, limitations } =
     req.body;
 
   try {
     // Construct prompt for Gemini
-    const prompt = `Generate a detailed ${daysPerWeek} day workout plan for a person with the following characteristics:
+    const prompt = `Generate a detailed workout plan for a person with the following characteristics:
     - Weight: ${weight} kg/lbs
     - Height: ${height} cm/ft
     - Goal: ${goal}
     - Fitness level: ${fitnessLevel}
-    - Days available per week: ${daysPerWeek}
+    - Selected days: ${selectedDays.join(", ")}
     ${
       limitations
         ? `- Limitations or injuries: ${limitations}`
@@ -26,8 +26,10 @@ const generateWorkoutPlan = asyncHandler(async (req, res) => {
     
     The workout plan should include:
     1. A brief summary of the plan
-    2. Daily workouts with:
-       - Day name (Monday, Tuesday, etc.)
+    2. Workouts for ONLY the following days: ${selectedDays.join(
+      ", "
+    )}. Each day should have:
+       - Day name (e.g., Monday, Friday, etc. - ONLY use days that the user selected)
        - Focus area (Upper Body, Lower Body, etc.)
        - 4-5 specific exercises with sets, reps, and weight guidelines
     3. Three specific tips for achieving their ${goal} goal
@@ -54,7 +56,11 @@ const generateWorkoutPlan = asyncHandler(async (req, res) => {
         "Tip 2",
         "Tip 3"
       ]
-    }`;
+    }
+    
+    IMPORTANT: The "workoutDays" array should ONLY include the days that the user selected (${selectedDays.join(
+      ", "
+    )}) and in the correct week order.`;
 
     // Call Gemini API
     const aiResponse = await generateContent(prompt);

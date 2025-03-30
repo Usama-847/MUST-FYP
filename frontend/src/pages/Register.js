@@ -1,19 +1,22 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { BsLock } from "react-icons/bs";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useRegisterMutation } from "../slices/usersApiSlice";
 import { setCredentials } from "../slices/authSlice";
 import { toast } from "react-toastify";
 import Loader from "../components/Loader";
-import Footer from "../components/Footer";
 
 const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  // States for toggling password visibility
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -31,7 +34,7 @@ const Register = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      toast.error("Password do not match");
+      toast.error("Passwords do not match");
     } else {
       try {
         const res = await register({ name, email, password }).unwrap();
@@ -45,7 +48,15 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#160937] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="h-screen bg-[#160937] py-12 px-4 sm:px-6 lg:px-8">
+      <div className="flex justify-end">
+        <Link to="/">
+          <button className="bg-blue-500 text-white py-2 px-4 rounded">
+            Home
+          </button>
+        </Link>
+      </div>
+
       <div className="max-w-md w-full mx-auto space-y-8">
         {/* Header Section */}
         <div className="text-center">
@@ -110,15 +121,25 @@ const Register = () => {
               >
                 Password
               </label>
-              <div className="mt-1">
+              <div className="mt-1 relative">
                 <input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00f2fe] focus:border-[#00f2fe] transition-all"
                 />
+                <div
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <FaEyeSlash className="text-gray-400" />
+                  ) : (
+                    <FaEye className="text-gray-400" />
+                  )}
+                </div>
               </div>
             </div>
 
@@ -129,15 +150,25 @@ const Register = () => {
               >
                 Confirm Password
               </label>
-              <div className="mt-1">
+              <div className="mt-1 relative">
                 <input
                   id="confirmPassword"
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   placeholder="Confirm your password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00f2fe] focus:border-[#00f2fe] transition-all"
                 />
+                <div
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <FaEyeSlash className="text-gray-400" />
+                  ) : (
+                    <FaEye className="text-gray-400" />
+                  )}
+                </div>
               </div>
             </div>
 
@@ -170,7 +201,6 @@ const Register = () => {
           </form>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

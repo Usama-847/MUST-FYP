@@ -25,7 +25,7 @@ app.use("/api/user", userStatusRoutes);
 app.use("/api/user", UserMealPlanRoutes);
 app.use("/api/workouts", workoutRoutes);
 app.use("/api/auth", userRoutes);
-
+app.use("/api/meals", UserMealPlanRoutes);
 if (process.env.NODE_ENV === "production") {
   const __dirname = path.resolve();
   app.use(express.static(path.join(__dirname, "frontend/build")));

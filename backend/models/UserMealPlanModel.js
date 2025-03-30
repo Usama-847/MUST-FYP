@@ -1,36 +1,34 @@
 import mongoose from "mongoose";
 
-const userMealPlanSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
+const mealPlanSchema = mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
+    },
+    planName: {
+      type: String,
+      required: true,
+    },
+    date: {
+      type: String,
+      required: true,
+    },
+    planData: {
+      type: Object,
+      required: true,
+    },
+    userData: {
+      type: Object,
+      required: true,
+    },
   },
-  date: {
-    type: Date,
-    required: true,
-  },
-  meal1: {
-    type: String,
-  },
-  meal2: {
-    type: String,
-  },
-  meal3: {
-    type: String,
-  },
-  meal4: {
-    type: String,
-  },
-  meal5: {
-    type: String,
-  },
-  snacks: {
-    type: String,
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
-
-const MealPlan = mongoose.model("MealPlan", userMealPlanSchema);
+const MealPlan = mongoose.model("MealPlan", mealPlanSchema);
 
 export default MealPlan;

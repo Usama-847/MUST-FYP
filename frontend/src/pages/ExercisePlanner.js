@@ -13,10 +13,10 @@ import UserModal from "../components/UserModal";
 const ExercisePlanner = () => {
   const [userData, setUserData] = useState({
     weight: "",
-    height: "", // Added height field
+    height: "",
     goal: "",
     fitnessLevel: "",
-    daysPerWeek: "",
+    selectedDays: [], // New state for selected days
     limitations: "",
   });
 
@@ -48,23 +48,62 @@ const ExercisePlanner = () => {
     });
   };
 
+  // New function to handle day selection
+  const handleDaySelect = (day, isSelected) => {
+    if (isSelected) {
+      setUserData({
+        ...userData,
+        selectedDays: [...userData.selectedDays, day],
+      });
+    } else {
+      setUserData({
+        ...userData,
+        selectedDays: userData.selectedDays.filter((d) => d !== day),
+      });
+    }
+  };
+
   const generateWorkoutPlan = async () => {
     // Validate inputs
     if (
       !userData.weight ||
-      !userData.height || // Added height validation
+      !userData.height ||
       !userData.goal ||
       !userData.fitnessLevel ||
-      !userData.daysPerWeek
+      userData.selectedDays.length === 0 // Check if any days are selected
     ) {
-      toast.error("Please fill all required fields");
+      toast.error(
+        "Please fill all required fields and select at least one day"
+      );
       return;
     }
 
     // Start thinking phase and API call
     setIsThinking(true);
     setIsGenerating(true);
-    const apiPromise = axios.post("/api/workouts/generate", userData);
+
+    // Sort days according to natural week order
+    const weekOrder = [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ];
+    const sortedSelectedDays = userData.selectedDays.sort(
+      (a, b) => weekOrder.indexOf(a) - weekOrder.indexOf(b)
+    );
+
+    // Create payload with sorted selected days
+    const payload = {
+      ...userData,
+      daysPerWeek: userData.selectedDays.length,
+      selectedDays: sortedSelectedDays,
+    };
+
+    const apiPromise = axios.post("/api/workouts/generate", payload);
     const timerPromise = new Promise((resolve) => setTimeout(resolve, 5000));
 
     try {
@@ -77,7 +116,7 @@ const ExercisePlanner = () => {
       const sanitizedPlan = {
         summary:
           planData.summary ||
-          `${userData.daysPerWeek} day ${userData.goal} plan`,
+          `${userData.selectedDays.length} day ${userData.goal} plan`,
         workoutDays: Array.isArray(planData.workoutDays)
           ? planData.workoutDays
           : [],
@@ -86,18 +125,9 @@ const ExercisePlanner = () => {
 
       // If workoutDays is empty, create placeholder days
       if (sanitizedPlan.workoutDays.length === 0) {
-        const dayNames = [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-          "Sunday",
-        ];
-        for (let i = 0; i < parseInt(userData.daysPerWeek); i++) {
+        for (let i = 0; i < userData.selectedDays.length; i++) {
           sanitizedPlan.workoutDays.push({
-            day: dayNames[i % 7],
+            day: userData.selectedDays[i],
             focus: "General Workout",
             exercises: [],
           });
@@ -202,6 +232,7 @@ const ExercisePlanner = () => {
             handleInputChange={handleInputChange}
             generateWorkoutPlan={generateWorkoutPlan}
             isGenerating={isGenerating}
+            handleDaySelect={handleDaySelect}
           />
         </div>
 
