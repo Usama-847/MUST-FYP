@@ -13,9 +13,10 @@ import UserModal from "../components/UserModal";
 const ExercisePlanner = () => {
   const [userData, setUserData] = useState({
     weight: "",
+    height: "",
     goal: "",
     fitnessLevel: "",
-    daysPerWeek: "",
+    selectedDays: [], // New state for selected days
     limitations: "",
   });
 
@@ -47,27 +48,93 @@ const ExercisePlanner = () => {
     });
   };
 
+  // New function to handle day selection
+  const handleDaySelect = (day, isSelected) => {
+    if (isSelected) {
+      setUserData({
+        ...userData,
+        selectedDays: [...userData.selectedDays, day],
+      });
+    } else {
+      setUserData({
+        ...userData,
+        selectedDays: userData.selectedDays.filter((d) => d !== day),
+      });
+    }
+  };
+
   const generateWorkoutPlan = async () => {
     // Validate inputs
     if (
       !userData.weight ||
+      !userData.height ||
       !userData.goal ||
       !userData.fitnessLevel ||
-      !userData.daysPerWeek
+      userData.selectedDays.length === 0 // Check if any days are selected
     ) {
-      toast.error("Please fill all required fields");
+      toast.error(
+        "Please fill all required fields and select at least one day"
+      );
       return;
     }
 
     // Start thinking phase and API call
     setIsThinking(true);
     setIsGenerating(true);
-    const apiPromise = axios.post("/api/workouts/generate", userData);
+
+    // Sort days according to natural week order
+    const weekOrder = [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ];
+    const sortedSelectedDays = userData.selectedDays.sort(
+      (a, b) => weekOrder.indexOf(a) - weekOrder.indexOf(b)
+    );
+
+    // Create payload with sorted selected days
+    const payload = {
+      ...userData,
+      daysPerWeek: userData.selectedDays.length,
+      selectedDays: sortedSelectedDays,
+    };
+
+    const apiPromise = axios.post("/api/workouts/generate", payload);
     const timerPromise = new Promise((resolve) => setTimeout(resolve, 5000));
 
     try {
       const [response] = await Promise.all([apiPromise, timerPromise]);
-      setWorkoutPlan(response.data);
+
+      // Ensure the response data has the expected structure
+      const planData = response.data;
+
+      // Create a default structure if any part is missing
+      const sanitizedPlan = {
+        summary:
+          planData.summary ||
+          `${userData.selectedDays.length} day ${userData.goal} plan`,
+        workoutDays: Array.isArray(planData.workoutDays)
+          ? planData.workoutDays
+          : [],
+        tips: Array.isArray(planData.tips) ? planData.tips : [],
+      };
+
+      // If workoutDays is empty, create placeholder days
+      if (sanitizedPlan.workoutDays.length === 0) {
+        for (let i = 0; i < userData.selectedDays.length; i++) {
+          sanitizedPlan.workoutDays.push({
+            day: userData.selectedDays[i],
+            focus: "General Workout",
+            exercises: [],
+          });
+        }
+      }
+
+      setWorkoutPlan(sanitizedPlan);
       setIsThinking(false);
       setIsRevealing(true);
       setIsGenerating(false);
@@ -110,7 +177,9 @@ const ExercisePlanner = () => {
 
   const handlePlanSaved = (savedPlan) => {
     // You can update the current workout plan with the saved version if needed
-    setWorkoutPlan(savedPlan);
+    if (savedPlan && savedPlan.planData) {
+      setWorkoutPlan(savedPlan.planData);
+    }
   };
 
   return (
@@ -134,11 +203,10 @@ const ExercisePlanner = () => {
       <header className="bg-gradient-to-r from-blue-600 to-teal-500 text-white py-6 px-4">
         <div className="container mx-auto text-center max-w-4xl">
           <h1 className="text-2xl md:text-3xl font-bold mb-1">
-            Exercise Planner
+            AI Exercise Planner
           </h1>
           <p className="text-base md:text-lg opacity-90">
-            Customized workout plans tailored to your specific weight and
-            fitness goals
+            Customized workout plans powered by Google's Gemini AI
           </p>
         </div>
       </header>
@@ -164,6 +232,7 @@ const ExercisePlanner = () => {
             handleInputChange={handleInputChange}
             generateWorkoutPlan={generateWorkoutPlan}
             isGenerating={isGenerating}
+            handleDaySelect={handleDaySelect}
           />
         </div>
 
@@ -173,7 +242,7 @@ const ExercisePlanner = () => {
             <div className="bg-white rounded-lg shadow-md p-5 mb-6">
               <div className="flex flex-col md:flex-row justify-between items-center mb-4">
                 <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-0">
-                  Your Personalized Workout Plan
+                  Your AI-Generated Workout Plan
                 </h2>
                 <button
                   onClick={handleSaveClick}
@@ -191,9 +260,9 @@ const ExercisePlanner = () => {
 
             <div className="bg-teal-50 border-l-4 border-teal-500 rounded-lg shadow-md p-5">
               <h2 className="text-lg md:text-xl font-semibold text-teal-600 mb-3">
-                Tips For Success
+                AI-Recommended Tips For Success
               </h2>
-              <Tips goal={userData.goal} fitnessLevel={userData.fitnessLevel} />
+              <Tips tips={workoutPlan.tips || []} />
             </div>
           </div>
         )}
@@ -206,7 +275,7 @@ const ExercisePlanner = () => {
             new exercise program.
           </p>
           <p className="text-xs md:text-sm">
-            © 2025 Exercise Planner. All rights reserved.
+            © 2025 AI Exercise Planner. All rights reserved.
           </p>
         </div>
       </footer>

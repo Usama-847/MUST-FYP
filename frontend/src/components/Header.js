@@ -76,9 +76,9 @@ const Header = () => {
           <Nav className="me-auto">
             <NavLink to="/">Home</NavLink>
             <NavLink to="/pages/features">Features</NavLink>
-            <NavLink to="/pages/workouts">Workout Database</NavLink>
-            <NavLink to="/pages/nutrition-checker">Nutrition Checker</NavLink>
-            <NavLink to="/pages/bmr-calculator">BMR</NavLink>
+            <NavLink to="/pages/contact">Contact Us</NavLink>
+            <NavLink to="/pages/about">About</NavLink>
+            <NavLink to="/pages/bmr-calculator">View Profile</NavLink>
           </Nav>
           <Nav>
             {userInfo ? (

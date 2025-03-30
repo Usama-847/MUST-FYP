@@ -1,10 +1,12 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import Footer from "../components/Footer";
+import Header from "../components/Header";
 
 const AboutUs = () => {
   return (
     <>
+      <Header />
       <Container>
         <Row className="justify-content-md-center">
           <Col md="auto">

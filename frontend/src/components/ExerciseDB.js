@@ -47,8 +47,8 @@ const ExercisePage = () => {
 
   return (
     <div>
-        <h2>Search For A Perfect Exercise</h2>
-      <div className="select-container">
+      <h2 className="text-white">Search For A Perfect Exercise</h2>
+      <div className="select-container my-5">
         <select value={selectedMuscle} onChange={handleMuscleChange}>
           <option value="">Select A Muscle Group</option>
           <option value="back">Back</option>
@@ -62,7 +62,9 @@ const ExercisePage = () => {
           <option value="upper%20legs">Upper Legs</option>
           <option value="waist">Waist</option>
         </select>
-        <button onClick={handleSearch} className="mx-3">Search</button>
+        <button onClick={handleSearch} className="mx-3">
+          Search
+        </button>
       </div>
       {currentExercises.length > 0 ? (
         <div className="exercise-container">
@@ -80,7 +82,9 @@ const ExercisePage = () => {
           ))}
         </div>
       ) : (
-        <h3>Exercises and demonstrations will be displayed here.</h3>
+        <h3 className="text-white">
+          Exercises and demonstrations will be displayed here.
+        </h3>
       )}
       {exercises.length > exercisesPerPage && (
         <div className="pagination">
