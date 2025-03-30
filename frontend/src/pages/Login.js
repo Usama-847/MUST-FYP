@@ -1,20 +1,21 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { BsLock } from "react-icons/bs";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useLoginMutation } from "../slices/usersApiSlice";
 import { setCredentials } from "../slices/authSlice";
 import { toast } from "react-toastify";
 import Loader from "../components/Loader";
-import Footer from "../components/Footer";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  // State to toggle password visibility
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
-  const dispatch = useDispatch(); // Fixed typo in variable name (dispath -> dispatch)
+  const dispatch = useDispatch();
 
   const [login, { isLoading }] = useLoginMutation();
 
@@ -22,7 +23,7 @@ const Login = () => {
 
   useEffect(() => {
     if (userInfo) {
-      navigate("/pages/features"); // Changed from "/" to "/pages/features"
+      navigate("/pages/features");
     }
   }, [navigate, userInfo]);
 
@@ -30,8 +31,8 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await login({ email, password }).unwrap();
-      dispatch(setCredentials({ ...res })); // Fixed typo in variable name
-      navigate("/pages/features"); // Changed from "/" to "/pages/features"
+      dispatch(setCredentials({ ...res }));
+      navigate("/pages/features");
       toast.success("Login Successfully!");
     } catch (err) {
       toast.error(err?.data?.message || err.error);
@@ -39,7 +40,14 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#160937] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="h-screen bg-[#160937] py-12 px-4 sm:px-6 lg:px-8">
+      <div className="flex justify-end">
+        <Link to="/">
+          <button className="bg-blue-500 text-white py-2 px-4 rounded">
+            Home
+          </button>
+        </Link>
+      </div>
       <div className="max-w-md w-full mx-auto space-y-8 py-10">
         {/* Header Section */}
         <div className="text-center">
@@ -85,15 +93,25 @@ const Login = () => {
               >
                 Password
               </label>
-              <div className="mt-1">
+              <div className="mt-1 relative">
                 <input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00f2fe] focus:border-[#00f2fe] transition-all"
                 />
+                <div
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <FaEyeSlash className="text-gray-400" />
+                  ) : (
+                    <FaEye className="text-gray-400" />
+                  )}
+                </div>
               </div>
             </div>
 
@@ -126,8 +144,8 @@ const Login = () => {
           </form>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };
+
 export default Login;
