@@ -25,6 +25,7 @@ import ExercisePlanner from "./pages/ExercisePlanner";
 import Dashboard from "./pages/Dashboard";
 import Ai from "./pages/Ai";
 import Contactus from "./pages/Contactus";
+import MealPlan from "./components/MealPlan"; // Add this import
 
 // Create authentication context
 export const AuthContext = createContext();
@@ -47,7 +48,6 @@ const App = () => {
             setUser(response.data);
             setIsAuthenticated(true);
           } else {
-            // Invalid response
             localStorage.removeItem("token");
             setUser(null);
             setIsAuthenticated(false);
@@ -69,21 +69,18 @@ const App = () => {
     checkAuth();
   }, []);
 
-  // Login function to update auth context
   const login = (userData, token) => {
     localStorage.setItem("token", token);
     setUser(userData);
     setIsAuthenticated(true);
   };
 
-  // Logout function
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
     setIsAuthenticated(false);
   };
 
-  // Authentication context value
   const authContextValue = {
     user,
     isAuthenticated,
@@ -96,7 +93,6 @@ const App = () => {
     <AuthContext.Provider value={authContextValue}>
       <ToastContainer />
       <Box width="400px" sx={{ width: { x1: "1488px" } }} m="auto">
-        {/* Only render Header when authenticated */}
         {isAuthenticated && <Header />}
         {!loading && (
           <Routes>
@@ -111,6 +107,7 @@ const App = () => {
             />
             <Route path="/pages/dashboard" element={<Dashboard />} />
             <Route path="/pages/Ai" element={<Ai />} />
+            <Route path="/pages/meal-plan" element={<MealPlan />} /> {/* Add this new route */}
 
             {/* Public Route */}
             <Route path="" element={<PublicRoute />}>
@@ -128,7 +125,6 @@ const App = () => {
           </Routes>
         )}
       </Box>
-      {/* Only render Footer when authenticated */}
       {isAuthenticated && <Footer />}
     </AuthContext.Provider>
   );
