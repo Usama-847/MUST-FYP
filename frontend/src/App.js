@@ -25,6 +25,8 @@ import ExercisePlanner from "./pages/ExercisePlanner";
 import Dashboard from "./pages/Dashboard";
 import Ai from "./pages/Ai";
 import Contactus from "./pages/Contactus";
+import SavedPlans from "./pages/SavedPlans";
+import ViewPlan from "./pages/ViewPlan"; // Import the new component
 
 // Create authentication context
 export const AuthContext = createContext();
@@ -115,19 +117,19 @@ const App = () => {
               element={<NutritionChecker />}
             />
             <Route path="/pages/dashboard" element={<Dashboard />} />
+            <Route path="/saved-plans" element={<SavedPlans />} />
+            <Route path="/plan/:planId" element={<ViewPlan />} />{" "}
+            {/* New route for viewing a single plan */}
             <Route path="/pages/Ai" element={<Ai />} />
-
             {/* Public Route */}
             <Route path="" element={<PublicRoute />}>
               <Route path="/pages/register" element={<Register />} />
               <Route path="/pages/login" element={<Login />} />
             </Route>
-
             {/* Private Route */}
             <Route path="" element={<PrivateRoute />}>
               <Route path="/pages/profile/*" element={<Profile />} />
             </Route>
-
             {/* 404 Page */}
             <Route path="*" element={<NotFound />} />
           </Routes>
