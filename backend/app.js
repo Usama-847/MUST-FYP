@@ -11,6 +11,7 @@ import userStatusRoutes from "./routes/userStatusRoutes.js";
 import UserMealPlanRoutes from "./routes/UserMealPlanRoutes.js";
 import workoutRoutes from "./routes/workoutRoutes.js";
 import exerciseRoutes from "./routes/exerciseRoutes.js";
+import progressRoutes from "./routes/ExerciseProgress.js";
 import cors from "cors";
 
 connectDB();
@@ -34,6 +35,7 @@ app.use("/api/workouts", workoutRoutes);
 app.use("/api/auth", userRoutes);
 app.use("/api/meals", UserMealPlanRoutes);
 app.use("/api/exercises", exerciseRoutes);
+app.use("/api/progress", progressRoutes);
 
 if (process.env.NODE_ENV === "production") {
   const __dirname = path.resolve();
