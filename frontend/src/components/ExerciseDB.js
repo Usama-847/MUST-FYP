@@ -33,7 +33,7 @@ const ExercisePage = () => {
 
     try {
       const response = await axios.get(
-        `http://localhost:9000/api/exercises/muscle/${selectedMuscle}`,
+        `${process.env.API_BASE_URL}/api/exercises/muscle/${selectedMuscle}`,
         { timeout: 5000 }
       );
 
