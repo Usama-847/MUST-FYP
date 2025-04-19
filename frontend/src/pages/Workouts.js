@@ -19,7 +19,6 @@ const Workouts = () => {
       >
         <ExercisePage />
       </Box>
-      <Footer />
     </>
   );
 };

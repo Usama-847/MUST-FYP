@@ -206,7 +206,7 @@ const ExercisePlanner = () => {
             AI Exercise Planner
           </h1>
           <p className="text-base md:text-lg opacity-90">
-            Customized workout plans powered by Google's Gemini AI
+            Customized workout plans powered by AI
           </p>
         </div>
       </header>

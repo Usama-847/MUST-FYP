@@ -1,12 +1,20 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import HeroBannerImage from "../assets/images/banner.png";
+import Spline from "@splinetool/react-spline";
 
 const HeroBanner = () => {
   const location = useLocation();
 
   return (
-    <div className="p-3 md:p-8">
+    <div
+      className="p-3 md:p-8"
+      style={{
+        backgroundImage: "url('/bg-image.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       {/* Navigation Header */}
       <div className="flex justify-between items-center">
         <div className="flex items-center">
@@ -38,19 +46,15 @@ const HeroBanner = () => {
       </div>
 
       {/* Hero Section */}
-      <div className="flex flex-col md:flex-row items-center mt-24">
-        <div className="flex-1">
+      <div className="flex flex-col md:flex-row items-center">
+        <div className="w-full md:w-[30%]">
           <h1 className="font-bold text-white text-[32px] lg:text-[44px]">
             We are here to help <br /> you to achieve your <br /> fitness
             dreams.
           </h1>
         </div>
-        <div className="flex-1 my-5">
-          <img
-            src={HeroBannerImage}
-            alt="banner"
-            className="max-w-full w-full"
-          />
+        <div className="w-full md:w-[70%] my-5">
+          <Spline scene="/scene.splinecode" />
         </div>
       </div>
     </div>
