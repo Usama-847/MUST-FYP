@@ -9,6 +9,7 @@ import Header from "../components/Header";
 function Dashboard() {
   const navigate = useNavigate();
   const [savedPlans, setSavedPlans] = useState([]);
+  const [savedMealPlans, setSavedMealPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [progressData, setProgressData] = useState({});
 
@@ -22,6 +23,7 @@ function Dashboard() {
     }
 
     fetchSavedPlans();
+    fetchSavedMealPlans();
 
     // Load progress data from localStorage
     const savedProgress = localStorage.getItem("workout_progress");
@@ -42,6 +44,22 @@ function Dashboard() {
     }
   };
 
+  const fetchSavedMealPlans = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+      const config = {
+        headers: { Authorization: `Bearer ${token}` },
+      };
+      const response = await axios.get("/api/meals/saved", config);
+      setSavedMealPlans(response.data);
+    } catch (error) {
+      console.error("Error fetching saved meal plans:", error);
+    }
+  };
+
   const handleViewSavedPlans = () => {
     if (!userInfo) {
       toast.info("Please login to view your saved plans");
@@ -50,6 +68,16 @@ function Dashboard() {
 
     // Navigate to the saved plans page
     navigate("/saved-plans");
+  };
+
+  const handleViewMealPlans = () => {
+    if (!userInfo) {
+      toast.info("Please login to view your meal plans");
+      return;
+    }
+
+    // Navigate to the meal plans page
+    navigate("/mealplanviewer");
   };
 
   // Get total average completion percentage across all plans
@@ -87,8 +115,7 @@ function Dashboard() {
         <header className="bg-white rounded-lg shadow-md p-5 mb-6">
           <h1 className="text-2xl font-bold mb-4">Your Dashboard</h1>
           <p className="text-gray-600 mb-6">
-            Welcome back! Manage your workout plans and track your fitness
-            progress.
+            Welcome back! Manage your workout plans, meal plans, and track your fitness progress.
           </p>
 
           {/* View Saved Plans Button */}
@@ -109,16 +136,55 @@ function Dashboard() {
                 clipRule="evenodd"
               />
             </svg>
-            View Saved Plans
+            View Saved Workout Plans
           </button>
         </header>
 
-        {/* Progress Overview */}
+        {/* Meal Plan Overview */}
+        <div className="bg-white rounded-lg shadow-md p-5 mb-6">
+          <h2 className="text-xl font-semibold mb-4">Meal Plan Overview</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="bg-green-50 rounded-lg p-4 border border-green-100">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-medium text-green-800">Saved Meal Plans</h3>
+                <span className="text-2xl font-bold text-green-600">
+                  {savedMealPlans.length}
+                </span>
+              </div>
+              <p className="text-sm text-gray-600">
+                Number of meal plans you've saved
+              </p>
+            </div>
+            <div className="flex items-center justify-center">
+              <button
+                onClick={handleViewMealPlans}
+                className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300 flex items-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 3h18M3 3v18M3 3H3l4 4M21 3l-4 4M3 21l4-4M21 21l-4-4M7 7h10M7 17h10"
+                  />
+                </svg>
+                View Meal Plans
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Workout Progress */}
         <div className="bg-white rounded-lg shadow-md p-5 mb-6">
           <h2 className="text-xl font-semibold mb-4">Workout Progress</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            {/* Overall Progress */}
             <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-medium text-blue-800">Overall Progress</h3>
@@ -137,7 +203,6 @@ function Dashboard() {
               </p>
             </div>
 
-            {/* Completed Plans */}
             <div className="bg-green-50 rounded-lg p-4 border border-green-100">
               <div className="flex items-center justify-between mb-1">
                 <h3 className="font-medium text-green-800">Completed Plans</h3>
@@ -150,7 +215,6 @@ function Dashboard() {
               </p>
             </div>
 
-            {/* Active Plans */}
             <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-100">
               <div className="flex items-center justify-between mb-1">
                 <h3 className="font-medium text-yellow-800">Active Plans</h3>
@@ -164,7 +228,6 @@ function Dashboard() {
             </div>
           </div>
 
-          {/* Individual Plan Progress */}
           {Object.keys(progressData).length > 0 ? (
             <div>
               <h3 className="font-semibold text-gray-700 mb-3">
@@ -296,7 +359,7 @@ function Dashboard() {
         {/* Quick Actions */}
         <div className="bg-white rounded-lg shadow-md p-5 mb-6">
           <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
             <Link
               to="/pages/exercise-planner"
               className="flex items-center p-4 bg-blue-50 rounded-lg border border-blue-100 hover:bg-blue-100 transition duration-300"

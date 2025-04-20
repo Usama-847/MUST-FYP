@@ -27,6 +27,7 @@ import Ai from "./pages/Ai";
 import Contactus from "./pages/Contactus";
 import SavedPlans from "./pages/SavedPlans";
 import ViewPlan from "./pages/ViewPlan"; // Import the new component
+import MealPlanViewer from"./pages/MealPlanViewer";
 
 // Create authentication context
 export const AuthContext = createContext();
@@ -129,9 +130,12 @@ const App = () => {
             {/* Private Route */}
             <Route path="" element={<PrivateRoute />}>
               <Route path="/pages/profile/*" element={<Profile />} />
+          
             </Route>
             {/* 404 Page */}
             <Route path="*" element={<NotFound />} />
+            <Route path="/mealplanviewer" element={<MealPlanViewer />} />
+            <Route path="/mealplanviewer/:date" element={<MealPlanViewer />} />
           </Routes>
         )}
       </Box>
