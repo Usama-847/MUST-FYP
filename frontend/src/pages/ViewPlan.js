@@ -131,7 +131,6 @@ const ViewPlan = () => {
   const isCurrentDay = (dayName) => {
     return dayName === currentDay;
   };
-  
 
   // Handle completing an exercise
   const handleCompleteExercise = async (dayIndex, exerciseIndex) => {
@@ -217,7 +216,6 @@ const ViewPlan = () => {
 
     return Math.round((completedCount / day.exercises.length) * 100);
   };
-  
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -233,7 +231,7 @@ const ViewPlan = () => {
           <p className="text-base md:text-lg opacity-90">
             View your complete workout plan
           </p>
-          <p className="text-base mt-2 bg-white bg-opacity-20 inline-block px-3 py-1 rounded">
+          <p className="text-base mt-2 bg-black bg-opacity-20 inline-block px-3 py-1 rounded">
             Today is {currentDay}
           </p>
         </div>
@@ -332,33 +330,6 @@ const ViewPlan = () => {
                     style={{ width: `${calculateCompletionPercentage()}%` }}
                   ></div>
                 </div>
-              </div>
-
-              <div className="flex flex-wrap gap-3 text-sm text-gray-600 mb-3">
-                <div className="bg-gray-100 px-3 py-1 rounded-full">
-                  Goal:{" "}
-                  <span className="font-medium">
-                    {plan.userData?.goal || "Custom"}
-                  </span>
-                </div>
-                <div className="bg-gray-100 px-3 py-1 rounded-full">
-                  <span className="font-medium">
-                    {plan.userData?.selectedDays?.length || "N/A"} days
-                  </span>{" "}
-                  per week
-                </div>
-                {plan.userData?.weight && (
-                  <div className="bg-gray-100 px-3 py-1 rounded-full">
-                    Weight:{" "}
-                    <span className="font-medium">{plan.userData.weight}</span>
-                  </div>
-                )}
-                {plan.userData?.height && (
-                  <div className="bg-gray-100 px-3 py-1 rounded-full">
-                    Height:{" "}
-                    <span className="font-medium">{plan.userData.height}</span>
-                  </div>
-                )}
               </div>
 
               {plan.userData?.limitations && (
@@ -694,70 +665,6 @@ const ViewPlan = () => {
                 </div>
               </div>
             )}
-
-            {/* Action Buttons */}
-            <div className="mt-8 border-t border-gray-200 pt-6 flex flex-wrap gap-3 justify-center">
-              <Link
-                to={`/edit-plan/${planId}`}
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-300"
-              >
-                <svg
-                  className="w-5 h-5 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  ></path>
-                </svg>
-                Edit Plan
-              </Link>
-              <Link
-                to="/share-plan"
-                className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition duration-300"
-              >
-                <svg
-                  className="w-5 h-5 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                  ></path>
-                </svg>
-                Share Plan
-              </Link>
-              <button
-                onClick={() => window.print()}
-                className="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition duration-300"
-              >
-                <svg
-                  className="w-5 h-5 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
-                  ></path>
-                </svg>
-                Print Plan
-              </button>
-            </div>
           </div>
         ) : (
           <div className="text-center py-12 bg-white rounded-lg shadow-md">
@@ -795,26 +702,6 @@ const ViewPlan = () => {
           </div>
         )}
       </div>
-
-      {/* Footer */}
-      <footer className="bg-gray-800 text-white py-6 mt-12">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-gray-300">
-            &copy; {new Date().getFullYear()} FitTracker. All rights reserved.
-          </p>
-          <div className="flex justify-center mt-4 space-x-4">
-            <a href="#" className="text-gray-400 hover:text-white">
-              Terms of Service
-            </a>
-            <a href="#" className="text-gray-400 hover:text-white">
-              Privacy Policy
-            </a>
-            <a href="#" className="text-gray-400 hover:text-white">
-              Contact Us
-            </a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };

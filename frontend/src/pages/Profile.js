@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Row, Col } from "react-bootstrap";
 import { Route, Routes } from "react-router-dom";
 import { setCredentials } from "../slices/authSlice";
-import ProfileSidebar from "../components/ProfileSidebar";
+// import ProfileSidebar from "../components/ProfileSidebar";
 import UpdateProfile from "../components/UpdateProfile";
 import UpdateDietProfile from "../components/UpdateDietProfile";
 import MealPlan from "../components/MealPlan";
@@ -21,10 +21,10 @@ const Profile = () => {
   return (
     <Row>
       <Header />
-      <Col md={3}>
+      {/* <Col md={3}>
         <ProfileSidebar userInfo={userInfo} dispatch={dispatch} />
-      </Col>
-      <Col md={9}>
+      </Col> */}
+      <Col>
         <Routes>
           <Route
             path="/"

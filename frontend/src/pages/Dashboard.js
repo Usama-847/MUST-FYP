@@ -38,7 +38,6 @@ function Dashboard() {
       setLoading(false);
     } catch (error) {
       console.error("Error fetching saved plans:", error);
-      toast.error("Failed to load your saved plans");
       setLoading(false);
     }
   };
@@ -327,7 +326,7 @@ function Dashboard() {
             </Link>
 
             <Link
-              to="/components/ExerciseDB"
+              to="/pages/workouts"
               className="flex items-center p-4 bg-purple-50 rounded-lg border border-purple-100 hover:bg-purple-100 transition duration-300"
             >
               <div className="p-2 bg-purple-100 rounded-full mr-3">
@@ -350,34 +349,6 @@ function Dashboard() {
                 <h3 className="font-medium">Workout Library</h3>
                 <p className="text-sm text-gray-600">
                   Browse pre-made workouts
-                </p>
-              </div>
-            </Link>
-
-            <Link
-              to="/fitness-tracker"
-              className="flex items-center p-4 bg-green-50 rounded-lg border border-green-100 hover:bg-green-100 transition duration-300"
-            >
-              <div className="p-2 bg-green-100 rounded-full mr-3">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 text-green-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-medium">Fitness Tracker</h3>
-                <p className="text-sm text-gray-600">
-                  Record your stats and progress
                 </p>
               </div>
             </Link>

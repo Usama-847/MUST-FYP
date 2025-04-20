@@ -103,9 +103,9 @@ const App = () => {
         {!loading && (
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/pages/features" element={<Features />} />
+            <Route path="/features" element={<Features />} />
             <Route path="/pages/workouts" element={<Workouts />} />
-            <Route path="/pages/contact" element={<Contactus />} />
+            <Route path="/contact" element={<Contactus />} />
             <Route path="/pages/about" element={<About />} />
             <Route
               path="/pages/exercise-planner"
