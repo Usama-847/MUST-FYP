@@ -29,7 +29,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Enable CORS in development
+// Enable CORS only in development
 if (process.env.NODE_ENV !== "production") {
   app.use(cors({ origin: process.env.FRONTEND_URL }));
 }
@@ -44,11 +44,11 @@ app.use("/api/meals", UserMealPlanRoutes);
 app.use("/api/exercises", exerciseRoutes);
 app.use("/api/progress", progressRoutes);
 
-// === 🛠 Serve Frontend (React) === //
-app.use(express.static(path.join(__dirname, "client", "build")));
+// === 🛠 Serve React frontend (build folder inside backend root) === //
+app.use(express.static(path.join(__dirname, "build")));
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+  res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
 // Error Handlers

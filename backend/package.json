@@ -10,7 +10,8 @@
     "client": "npm run start --prefix ../frontend",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "test": "jest",
-    "build": "echo 'Build step not needed - using pre-built frontend'",
+    "build": "npm run build-frontend",
+    "build-frontend": "cd ../frontend && npm install && npm run build && cp -r build ../backend/build",
     "vercel-build": "echo hello"
   },
   "repository": {
