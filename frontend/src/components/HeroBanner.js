@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import Spline from "@splinetool/react-spline";
+// import Spline from "@splinetool/react-spline";
 
 const HeroBanner = () => {
   const location = useLocation();
@@ -53,9 +53,9 @@ const HeroBanner = () => {
             dreams.
           </h1>
         </div>
-        <div className="w-full md:w-[70%] my-5">
+        {/* <div className="w-full md:w-[70%] my-5">
           <Spline scene="/scene.splinecode" />
-        </div>
+        </div> */}
       </div>
     </div>
   );
