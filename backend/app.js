@@ -47,7 +47,7 @@ app.use("/api/progress", progressRoutes);
 // === 🛠 Serve React frontend (build folder inside backend root) === //
 app.use(express.static(path.join(__dirname, "build")));
 
-app.get("/", (req, res) => {
+app.get("/*", (req, res) => {
   res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
