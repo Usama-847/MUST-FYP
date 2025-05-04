@@ -30,7 +30,15 @@ const SavedPlans = () => {
   const fetchSavedPlans = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("/api/workouts/saved");
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/workouts/saved`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Add authentication
+          },
+        }
+      );
       const plans = response.data;
 
       // Initialize workout statuses
@@ -39,7 +47,6 @@ const SavedPlans = () => {
         if (plan.planData?.workoutDays) {
           const dayStatuses = {};
           plan.planData.workoutDays.forEach((day, index) => {
-            // Default status is 'notStarted'
             dayStatuses[index] = plan.progress?.[index] || "notStarted";
           });
           initialStatuses[plan._id] = dayStatuses;
@@ -50,8 +57,10 @@ const SavedPlans = () => {
       setSavedPlans(plans);
       setLoading(false);
     } catch (error) {
-      console.error("Error fetching saved plans:", error);
-      toast.error("Failed to load your saved plans");
+      console.error("Error fetching saved plans:", error.response || error);
+      toast.error(
+        `Failed to load saved plans: ${error.response?.status || error.message}`
+      );
       setLoading(false);
     }
   };
@@ -60,12 +69,20 @@ const SavedPlans = () => {
     if (window.confirm("Are you sure you want to delete this plan?")) {
       setIsDeleting(true);
       try {
-        await axios.delete(`/api/workouts/${planId}`);
+        const token = localStorage.getItem("token");
+        await axios.delete(
+          `${process.env.REACT_APP_API_URL}/api/workouts/${planId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         setSavedPlans(savedPlans.filter((plan) => plan._id !== planId));
         toast.success("Plan deleted successfully");
         setIsDeleting(false);
       } catch (error) {
-        console.error("Error deleting plan:", error);
+        console.error("Error deleting plan:", error.response || error);
         toast.error("Failed to delete plan");
         setIsDeleting(false);
       }
@@ -74,7 +91,6 @@ const SavedPlans = () => {
 
   const handleStartWorkout = async (planId, dayIndex) => {
     try {
-      // Update local state first for immediate UI feedback
       setWorkoutStatuses((prev) => ({
         ...prev,
         [planId]: {
@@ -83,17 +99,20 @@ const SavedPlans = () => {
         },
       }));
 
-      // Then update on the server
-      await axios.post(`/api/workouts/${planId}/start`, { dayIndex });
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/workouts/${planId}/start`,
+        { dayIndex },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       toast.success("Workout started!");
-
-      // You could navigate to a workout view page here
-      // navigate(`/workout/${planId}/${dayIndex}`);
     } catch (error) {
-      console.error("Error starting workout:", error);
+      console.error("Error starting workout:", error.response || error);
       toast.error("Failed to start workout");
-
-      // Revert state on error
       setWorkoutStatuses((prev) => ({
         ...prev,
         [planId]: {
@@ -106,7 +125,6 @@ const SavedPlans = () => {
 
   const handleSkipWorkout = async (planId, dayIndex) => {
     try {
-      // Update local state first for immediate UI feedback
       setWorkoutStatuses((prev) => ({
         ...prev,
         [planId]: {
@@ -115,14 +133,20 @@ const SavedPlans = () => {
         },
       }));
 
-      // Then update on the server
-      await axios.post(`/api/workouts/${planId}/skip`, { dayIndex });
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/workouts/${planId}/skip`,
+        { dayIndex },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       toast.info("Workout skipped");
     } catch (error) {
-      console.error("Error skipping workout:", error);
+      console.error("Error skipping workout:", error.response || error);
       toast.error("Failed to skip workout");
-
-      // Revert state on error
       setWorkoutStatuses((prev) => ({
         ...prev,
         [planId]: {
@@ -135,7 +159,6 @@ const SavedPlans = () => {
 
   const handleCompleteWorkout = async (planId, dayIndex) => {
     try {
-      // Update local state first for immediate UI feedback
       setWorkoutStatuses((prev) => ({
         ...prev,
         [planId]: {
@@ -144,14 +167,20 @@ const SavedPlans = () => {
         },
       }));
 
-      // Then update on the server
-      await axios.post(`/api/workouts/${planId}/complete`, { dayIndex });
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/workouts/${planId}/complete`,
+        { dayIndex },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       toast.success("Great job! Workout completed!");
     } catch (error) {
-      console.error("Error completing workout:", error);
+      console.error("Error completing workout:", error.response || error);
       toast.error("Failed to mark workout as complete");
-
-      // Revert state on error
       setWorkoutStatuses((prev) => ({
         ...prev,
         [planId]: {
@@ -185,10 +214,8 @@ const SavedPlans = () => {
       <Header />
       <ToastContainer position="top-right" autoClose={5000} />
 
-      {/* Thinking Animation for deletion */}
       {isDeleting && <ThinkingAnimation />}
 
-      {/* Header */}
       <header className="bg-gradient-to-r from-blue-600 to-teal-500 text-white py-6 px-4">
         <div className="container mx-auto text-center max-w-4xl">
           <h1 className="text-2xl md:text-3xl font-bold mb-1">
@@ -200,7 +227,6 @@ const SavedPlans = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <div className="container mx-auto px-4 py-6 max-w-4xl">
         <div className="flex justify-between items-center mb-6">
           <div>
