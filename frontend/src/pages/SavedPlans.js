@@ -14,11 +14,9 @@ const SavedPlans = () => {
   const [workoutStatuses, setWorkoutStatuses] = useState({});
   const navigate = useNavigate();
 
-  // Get user from Redux store
   const { userInfo } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    // Redirect if not logged in
     if (!userInfo) {
       navigate("/pages/login");
       return;
@@ -35,13 +33,13 @@ const SavedPlans = () => {
         `${process.env.REACT_APP_API_URL}/api/workouts/saved`,
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Add authentication
+            Authorization: `Bearer ${token}`,
           },
         }
       );
-      const plans = response.data;
+      const plans = Array.isArray(response.data) ? response.data : [];
+      console.log("Fetched plans:", plans); // Debug log
 
-      // Initialize workout statuses
       const initialStatuses = {};
       plans.forEach((plan) => {
         if (plan.planData?.workoutDays) {
@@ -61,6 +59,7 @@ const SavedPlans = () => {
       toast.error(
         `Failed to load saved plans: ${error.response?.status || error.message}`
       );
+      setSavedPlans([]);
       setLoading(false);
     }
   };
