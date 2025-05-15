@@ -191,8 +191,7 @@ const MealPlan = () => {
   };
 
   return (
-    <div className="bg-gray-50">
-      <Header />
+    <div className="bg-gray-50 flex items-center justify-center flex-col w-full">
       <ToastContainer position="top-right" autoClose={5000} />
 
       {/* Thinking Animation Overlay */}
@@ -208,7 +207,7 @@ const MealPlan = () => {
       />
 
       {/* Header */}
-      <header className="bg-gradient-to-r from-green-600 to-teal-500 text-white py-6 px-4">
+      <header className="bg-gradient-to-r from-green-600 to-teal-500 text-white py-6 px-4 flex items-center justify-center flex-col">
         <Container className="mx-auto text-center">
           <h1 className="text-2xl md:text-3xl font-bold mb-1">
             AI Meal Planner

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, createContext } from "react";
 import { Route, Routes } from "react-router-dom";
 import { Box } from "@mui/material";
-import { Container } from "react-bootstrap";
 import { ToastContainer } from "react-toastify";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
@@ -25,6 +24,8 @@ import ExercisePlanner from "./pages/ExercisePlanner";
 import Dashboard from "./pages/Dashboard";
 import Ai from "./pages/Ai";
 import Contactus from "./pages/Contactus";
+import SavedPlans from "./pages/SavedPlans";
+import ViewPlan from "./pages/ViewPlan"; // Import the new component
 
 // Create authentication context
 export const AuthContext = createContext();
@@ -101,28 +102,33 @@ const App = () => {
         {!loading && (
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/pages/features" element={<Features />} />
+            <Route path="/features" element={<Features />} />
             <Route path="/pages/workouts" element={<Workouts />} />
-            <Route path="/pages/contact" element={<Contactus />} />
+            <Route path="/contact" element={<Contactus />} />
             <Route path="/pages/about" element={<About />} />
             <Route
               path="/pages/exercise-planner"
               element={<ExercisePlanner />}
             />
+            <Route path="/pages/bmr-calculator" element={<BMRCalculator />} />
+            <Route
+              path="/pages/nutrition-checker"
+              element={<NutritionChecker />}
+            />
             <Route path="/pages/dashboard" element={<Dashboard />} />
+            <Route path="/saved-plans" element={<SavedPlans />} />
+            <Route path="/plan/:planId" element={<ViewPlan />} />{" "}
+            {/* New route for viewing a single plan */}
             <Route path="/pages/Ai" element={<Ai />} />
-
             {/* Public Route */}
             <Route path="" element={<PublicRoute />}>
               <Route path="/pages/register" element={<Register />} />
               <Route path="/pages/login" element={<Login />} />
             </Route>
-
             {/* Private Route */}
             <Route path="" element={<PrivateRoute />}>
               <Route path="/pages/profile/*" element={<Profile />} />
             </Route>
-
             {/* 404 Page */}
             <Route path="*" element={<NotFound />} />
           </Routes>
