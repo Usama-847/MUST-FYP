@@ -44,11 +44,9 @@ app.use("/api/meals", UserMealPlanRoutes);
 app.use("/api/exercises", exerciseRoutes);
 app.use("/api/progress", progressRoutes);
 
-// === 🛠 Serve React frontend (build folder inside backend root) === //
-app.use(express.static(path.join(__dirname, "build")));
-
+app.use(express.static(path.join(__dirname, "/build/")));
 app.get("/*", (req, res) => {
-  res.sendFile(path.join(__dirname, "build", "index.html"));
+  res.sendFile(path.join(__dirname, "/build/", "index.html"));
 });
 
 // Error Handlers
