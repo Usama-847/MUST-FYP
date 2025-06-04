@@ -80,7 +80,7 @@ const Header = () => {
               <NavLink to="/features">Features</NavLink>
               <NavLink to="/contact">Contact Us</NavLink>
               <NavLink to="/pages/about">About</NavLink>
-              <NavLink to="/pages/bmr-calculator">View Profile</NavLink>
+              <NavLink to="/pages/Profile">View Profile</NavLink>
             </div>
 
             <div className="flex items-center">
