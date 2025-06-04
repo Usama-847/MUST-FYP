@@ -12,8 +12,13 @@ const ViewPlan = () => {
   const [loading, setLoading] = useState(true);
   const [exerciseProgress, setExerciseProgress] = useState({});
   const [currentDay, setCurrentDay] = useState("");
+  const [exerciseTimers, setExerciseTimers] = useState({});
+  const [completedSets, setCompletedSets] = useState({});
   const { planId } = useParams();
   const navigate = useNavigate();
+
+  // Minimum time required for one set (in seconds)
+  const MIN_SET_TIME = 25; // 25 seconds per set
 
   // Get user from Redux store
   const { userInfo } = useSelector((state) => state.auth);
@@ -42,6 +47,114 @@ const ViewPlan = () => {
     fetchExerciseProgress();
   }, [userInfo, planId, navigate]);
 
+  // Handle plan deletion and day skipping
+  useEffect(() => {
+    if (!plan || !plan.createdAt) return;
+
+    const checkPlanExpirationAndDaySkipping = async () => {
+      const createdDate = new Date(plan.createdAt);
+      const now = new Date();
+      const daysSinceCreation = Math.floor(
+        (now - createdDate) / (1000 * 60 * 60 * 24)
+      );
+
+      // Check if plan was created on Monday and week has ended
+      if (createdDate.getDay() === 1 && daysSinceCreation >= 7) {
+        try {
+          await axios.delete(`/api/workouts/${planId}`);
+          toast.info("Workout plan has expired and was deleted");
+          navigate("/saved-plans");
+        } catch (error) {
+          console.error("Error deleting expired plan:", error);
+          toast.error("Failed to delete expired plan");
+        }
+        return;
+      }
+
+      // Check for missed days (only previous day)
+      const days = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
+      const currentDayIndex = now.getDay();
+      const currentTime = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+
+      // Only check previous day after midnight
+      if (currentTime >= 0) {
+        const prevDayIndex = (currentDayIndex - 1 + 7) % 7;
+        const prevDayName = days[prevDayIndex];
+        const workoutDayIndex = plan.planData?.workoutDays?.findIndex(
+          (day) => day.day === prevDayName
+        );
+
+        if (workoutDayIndex >= 0) {
+          const workoutDay = plan.planData?.workoutDays[workoutDayIndex];
+          if (workoutDay && workoutDay.exercises.length > 0) {
+            const allExercisesSkippedOrCompleted = workoutDay.exercises.every(
+              (_, exIndex) => {
+                const status = exerciseProgress[`${workoutDayIndex}-${exIndex}`];
+                return status === "completed" || status === "skipped";
+              }
+            );
+
+            if (!allExercisesSkippedOrCompleted) {
+              try {
+                for (let exIndex = 0; exIndex < workoutDay.exercises.length; exIndex++) {
+                  const exerciseId = `${workoutDayIndex}-${exIndex}`;
+                  if (!exerciseProgress[exerciseId]) {
+                    await axios.post("/api/progress/update", {
+                      workoutPlanId: planId,
+                      dayIndex: workoutDayIndex,
+                      exerciseIndex: exIndex,
+                      status: "skipped",
+                    });
+                    setExerciseProgress((prev) => ({
+                      ...prev,
+                      [exerciseId]: "skipped",
+                    }));
+                  }
+                }
+                toast.info(`${prevDayName} exercises marked as skipped`);
+              } catch (error) {
+                console.error("Error marking day as skipped:", error);
+                toast.error("Failed to update missed day status");
+              }
+            }
+          }
+        }
+      }
+    };
+
+    // Run check every minute
+    const interval = setInterval(checkPlanExpirationAndDaySkipping, 60000);
+    return () => clearInterval(interval);
+  }, [plan, planId, navigate, exerciseProgress]);
+
+  // Update exercise timers
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setExerciseTimers((prev) => {
+        const updatedTimers = { ...prev };
+        Object.keys(updatedTimers).forEach((key) => {
+          if (updatedTimers[key].startTime) {
+            const elapsed = Math.floor(
+              (Date.now() - updatedTimers[key].startTime) / 1000
+            );
+            updatedTimers[key].elapsedTime = elapsed;
+          }
+        });
+        return updatedTimers;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const fetchPlanDetails = async () => {
     setLoading(true);
     try {
@@ -57,28 +170,19 @@ const ViewPlan = () => {
 
   const fetchExerciseProgress = async () => {
     try {
-      // Fix: Use the correct endpoint structure
       const response = await axios.get(`/api/progress/${planId}`);
 
-      // Check if data exists
       if (response.data && Array.isArray(response.data)) {
-        // Transform the array to a lookup object for easier access
         const progressMap = {};
         response.data.forEach((item) => {
           progressMap[`${item.dayIndex}-${item.exerciseIndex}`] = item.status;
         });
-
         setExerciseProgress(progressMap);
-      } else {
-        console.log("No progress data found for this workout plan");
-        // Initialize with empty object if no data
-        setExerciseProgress({});
       }
     } catch (error) {
       console.error("Error fetching exercise progress:", error);
-      // Handle 404 specifically - it might just mean no progress yet
       if (error.response && error.response.status === 404) {
-        console.log("No progress tracking started for this plan yet");
+        console.log("No progress tracking started for this plan");
         setExerciseProgress({});
       } else {
         toast.error("Failed to load your progress");
@@ -104,27 +208,34 @@ const ViewPlan = () => {
     }
   };
 
-  // Calculate the total number of exercises in the plan
+  // Calculate total number of exercises in the plan
   const getTotalExercisesCount = () => {
     if (!plan || !plan.planData || !plan.planData.workoutDays) return 0;
-
-    return plan.planData.workoutDays.reduce((total, day) => {
-      return total + day.exercises.length;
+    return plan.planData.workoutDays.reduce((count, day) => {
+      return count + day.exercises.length;
     }, 0);
   };
 
-  // Calculate completion percentage for the plan
-  const calculateCompletionPercentage = () => {
-    const totalExercises = getTotalExercisesCount();
-    if (totalExercises === 0) return 0;
+  // Calculate total possible points
+  const getTotalPossiblePoints = () => {
+    return getTotalExercisesCount() * 5; // Each exercise is worth 5 points
+  };
 
-    // Count completed exercises
-    let completedCount = 0;
+  // Calculate total earned points
+  const calculateEarnedPoints = () => {
+    let points = 0;
     Object.values(exerciseProgress).forEach((status) => {
-      if (status === "completed") completedCount++;
+      if (status === "completed") points += 5; // 5 points per completed exercise
+      if (status === "skipped") points -= 2; // Deduct 2 points per skipped exercise
     });
+    return Math.max(0, points); // Ensure points don't go negative
+  };
 
-    return Math.round((completedCount / totalExercises) * 100);
+  // Calculate points progress percentage for display
+  const calculatePointsProgressPercentage = () => {
+    const totalPoints = getTotalPossiblePoints();
+    if (totalPoints === 0) return 0;
+    return Math.round((calculateEarnedPoints() / totalPoints) * 100);
   };
 
   // Check if the day is the current day of the week
@@ -132,15 +243,64 @@ const ViewPlan = () => {
     return dayName === currentDay;
   };
 
-  // Handle completing an exercise
-  const handleCompleteExercise = async (dayIndex, exerciseIndex) => {
-    const exerciseId = `${dayIndex}-${exerciseIndex}`;
+  // Start exercise set timer
+  const handleStartSet = (dayIndex, exIndex) => {
+    const exerciseId = `${dayIndex}-${exIndex}`;
+    setExerciseTimers((prev) => ({
+      ...prev,
+      [exerciseId]: {
+        startTime: Date.now(),
+        elapsedTime: 0,
+      },
+    }));
+  };
 
-    // If already completed, do nothing
+  // Mark set as completed
+  const handleCompleteSet = (dayIndex, exerciseIndex, totalSets) => {
+    const exerciseId = `${dayIndex}-${exerciseIndex}`;
+    const timer = exerciseTimers[exerciseId];
+
+    if (!timer || timer.elapsedTime < MIN_SET_TIME) {
+      toast.error(
+        `Please wait ${MIN_SET_TIME - (timer?.elapsedTime || 0)} more seconds to complete this set`
+      );
+      return;
+    }
+
+    setCompletedSets((prev) => {
+      const currentSets = prev[exerciseId] || 0;
+      if (currentSets < totalSets) {
+        toast.success(`Set ${currentSets + 1} completed`);
+        return {
+          ...prev,
+          [exerciseId]: currentSets + 1,
+        };
+      }
+      return prev;
+    });
+
+    // Reset timer for the next set
+    setExerciseTimers((prev) => ({
+      ...prev,
+      [exerciseId]: {
+        startTime: Date.now(),
+        elapsedTime: 0,
+      },
+    }));
+  };
+
+  // Handle completing an entire exercise
+  const handleCompleteExercise = async (dayIndex, exerciseIndex, totalSets) => {
+    const exerciseId = `${dayIndex}-${exerciseIndex}`;
     if (exerciseProgress[exerciseId] === "completed") return;
 
+    const completed = completedSets[exerciseId] || 0;
+    if (completed < totalSets) {
+      toast.error(`Please complete all ${totalSets} sets before marking as completed`);
+      return;
+    }
+
     try {
-      // Fix: Update the API endpoint structure
       await axios.post("/api/progress/update", {
         workoutPlanId: planId,
         dayIndex,
@@ -148,13 +308,24 @@ const ViewPlan = () => {
         status: "completed",
       });
 
-      // Update local state
       setExerciseProgress((prev) => ({
         ...prev,
         [exerciseId]: "completed",
       }));
 
-      toast.success("Exercise completed!");
+      // Reset timer and completed sets
+      setExerciseTimers((prev) => {
+        const updatedTimers = { ...prev };
+        delete updatedTimers[exerciseId];
+        return updatedTimers;
+      });
+      setCompletedSets((prev) => {
+        const updatedSets = { ...prev };
+        delete updatedSets[exerciseId];
+        return updatedSets;
+      });
+
+      toast.success("Exercise completed! +5 points");
     } catch (error) {
       console.error("Error updating exercise status:", error);
       toast.error("Failed to update exercise status");
@@ -165,11 +336,9 @@ const ViewPlan = () => {
   const handleSkipExercise = async (dayIndex, exerciseIndex) => {
     const exerciseId = `${dayIndex}-${exerciseIndex}`;
 
-    // If already skipped, do nothing
     if (exerciseProgress[exerciseId] === "skipped") return;
 
     try {
-      // Fix: Update the API endpoint structure
       await axios.post("/api/progress/update", {
         workoutPlanId: planId,
         dayIndex,
@@ -177,13 +346,24 @@ const ViewPlan = () => {
         status: "skipped",
       });
 
-      // Update local state
       setExerciseProgress((prev) => ({
         ...prev,
         [exerciseId]: "skipped",
       }));
 
-      toast.info("Exercise skipped");
+      // Reset timer and completed sets if exist
+      setExerciseTimers((prev) => {
+        const updatedTimers = { ...prev };
+        delete updatedTimers[exerciseId];
+        return updatedTimers;
+      });
+      setCompletedSets((prev) => {
+        const updatedSets = { ...prev };
+        delete updatedSets[exerciseId];
+        return updatedSets;
+      });
+
+      toast.info("Exercise skipped (-2 points)");
     } catch (error) {
       console.error("Error updating exercise status:", error);
       toast.error("Failed to update exercise status");
@@ -200,21 +380,29 @@ const ViewPlan = () => {
     return exerciseProgress[`${dayIndex}-${exerciseIndex}`] === "skipped";
   };
 
-  // Calculate progress per day
-  const calculateDayProgress = (dayIndex) => {
+  // Format elapsed time for display
+  const formatElapsedTime = (seconds) => {
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+    return `${min}:${sec < 10 ? "0" : ""}${sec}`;
+  };
+
+  // Calculate points per day
+  const calculateDayPoints = (dayIndex) => {
     if (!plan || !plan.planData || !plan.planData.workoutDays) return 0;
 
     const day = plan.planData.workoutDays[dayIndex];
     if (!day || day.exercises.length === 0) return 0;
 
-    let completedCount = 0;
+    let points = 0;
     day.exercises.forEach((_, exerciseIndex) => {
       if (isExerciseCompleted(dayIndex, exerciseIndex)) {
-        completedCount++;
+        points += 5; // 5 points per completed exercise
+      } else if (isExerciseSkipped(dayIndex, exerciseIndex)) {
+        points -= 2; // Deduct 2 points per skipped exercise
       }
     });
-
-    return Math.round((completedCount / day.exercises.length) * 100);
+    return Math.max(0, points); // Ensure points don't go negative
   };
 
   return (
@@ -314,20 +502,20 @@ const ViewPlan = () => {
                 </div>
               </div>
 
-              {/* Overall Progress Bar */}
+              {/* Points Progress Bar */}
               <div className="mb-4">
                 <div className="flex justify-between mb-1">
                   <span className="text-sm font-medium text-gray-700">
-                    Overall Progress
+                    Total Points
                   </span>
                   <span className="text-sm font-medium text-gray-700">
-                    {calculateCompletionPercentage()}%
+                    {calculateEarnedPoints()} / {getTotalPossiblePoints()} Points
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
                   <div
                     className="bg-blue-600 h-2.5 rounded-full"
-                    style={{ width: `${calculateCompletionPercentage()}%` }}
+                    style={{ width: `${calculatePointsProgressPercentage()}%` }}
                   ></div>
                 </div>
               </div>
@@ -383,7 +571,7 @@ const ViewPlan = () => {
                             </span>
                             {day.exercises.length > 0 && (
                               <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                                {calculateDayProgress(dayIndex)}% Complete
+                                {calculateDayPoints(dayIndex)} / {day.exercises.length * 5} Points
                               </span>
                             )}
                           </div>
@@ -394,14 +582,13 @@ const ViewPlan = () => {
                         <div className="p-4">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {day.exercises.map((exercise, exIndex) => {
-                              const isCompleted = isExerciseCompleted(
-                                dayIndex,
-                                exIndex
-                              );
-                              const isSkipped = isExerciseSkipped(
-                                dayIndex,
-                                exIndex
-                              );
+                              const exerciseId = `${dayIndex}-${exIndex}`;
+                              const isCompleted = isExerciseCompleted(dayIndex, exIndex);
+                              const isSkipped = isExerciseSkipped(dayIndex, exIndex);
+                              const timer = exerciseTimers[exerciseId];
+                              const completed = completedSets[exerciseId] || 0;
+                              const canCompleteSet = timer && timer.elapsedTime >= MIN_SET_TIME;
+                              const canCompleteExercise = completed >= exercise.sets;
 
                               return (
                                 <div
@@ -445,7 +632,12 @@ const ViewPlan = () => {
                                             clipRule="evenodd"
                                           ></path>
                                         </svg>
-                                        Completed
+                                        Completed (+5 Points)
+                                      </span>
+                                    )}
+                                    {isSkipped && (
+                                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                        Skipped (-2 Points)
                                       </span>
                                     )}
                                   </div>
@@ -475,43 +667,101 @@ const ViewPlan = () => {
                                     )}
                                   </div>
 
-                                  {exercise.notes && (
+                                  {/* Sets progress */}
+                                  {!isCompleted && !isSkipped && (
                                     <div className="mt-2 text-sm text-gray-600">
-                                      <span className="font-medium">
-                                        Notes:
-                                      </span>{" "}
-                                      {exercise.notes}
+                                      Sets Completed: {completed}/{exercise.sets}
+                                    </div>
+                                  )}
+
+                                  {/* Timer display */}
+                                  {timer && !isCompleted && !isSkipped && isDayToday && (
+                                    <div className="mt-2 text-sm text-gray-600">
+                                      Set Time: {formatElapsedTime(timer.elapsedTime)}
                                     </div>
                                   )}
 
                                   {/* Action buttons - Only shown for current day */}
                                   {!isCompleted && !isSkipped && isDayToday && (
-                                    <div className="mt-3 flex gap-2">
-                                      <button
-                                        onClick={() =>
-                                          handleCompleteExercise(
-                                            dayIndex,
-                                            exIndex
-                                          )
-                                        }
-                                        className="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition duration-300 flex items-center"
-                                      >
-                                        <svg
-                                          className="w-4 h-4 mr-1"
-                                          fill="none"
-                                          stroke="currentColor"
-                                          viewBox="0 0 24 24"
-                                          xmlns="http://www.w3.org/2000/svg"
+                                    <div className="mt-3 flex gap-2 flex-wrap">
+                                      {!timer && completed < exercise.sets && (
+                                        <button
+                                          onClick={() =>
+                                            handleStartSet(dayIndex, exIndex)
+                                          }
+                                          className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition duration-300 flex items-center"
                                         >
-                                          <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                            d="M5 13l4 4L19 7"
-                                          ></path>
-                                        </svg>
-                                        Complete
-                                      </button>
+                                          <svg
+                                            className="w-4 h-4 mr-1"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                          >
+                                            <path
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              strokeWidth="2"
+                                              d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                                            ></path>
+                                            <path
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              strokeWidth="2"
+                                              d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                            ></path>
+                                          </svg>
+                                          Start Set
+                                        </button>
+                                      )}
+                                      {canCompleteSet && completed < exercise.sets && (
+                                        <button
+                                          onClick={() =>
+                                            handleCompleteSet(dayIndex, exIndex, exercise.sets)
+                                          }
+                                          className="px-3 py-1 bg-teal-500 text-white text-sm rounded hover:bg-teal-600 transition duration-300 flex items-center"
+                                        >
+                                          <svg
+                                            className="w-4 h-4 mr-1"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                          >
+                                            <path
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              strokeWidth="2"
+                                              d="M5 13l4 4L19 7"
+                                            ></path>
+                                          </svg>
+                                          Complete Set
+                                        </button>
+                                      )}
+                                      {canCompleteExercise && (
+                                        <button
+                                          onClick={() =>
+                                            handleCompleteExercise(dayIndex, exIndex, exercise.sets)
+                                          }
+                                          className="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition duration-300 flex items-center"
+                                        >
+                                          <svg
+                                            className="w-4 h-4 mr-1"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                          >
+                                            <path
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              strokeWidth="2"
+                                              d="M5 13l4 4L19 7"
+                                            ></path>
+                                          </svg>
+                                          Complete Exercise (+5)
+                                        </button>
+                                      )}
                                       <button
                                         onClick={() =>
                                           handleSkipExercise(dayIndex, exIndex)
@@ -532,7 +782,7 @@ const ViewPlan = () => {
                                             d="M13 5l7 7-7 7M5 5l7 7-7 7"
                                           ></path>
                                         </svg>
-                                        Skip
+                                        Skip (-2)
                                       </button>
                                     </div>
                                   )}
