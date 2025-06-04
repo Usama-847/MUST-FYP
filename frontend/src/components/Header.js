@@ -59,9 +59,7 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <img src={Logo} alt="logo" className="w-24" />
-          </Link>
+          
 
           {/* Mobile Menu Button */}
           <div className="md:hidden">
@@ -80,7 +78,7 @@ const Header = () => {
               <NavLink to="/features">Features</NavLink>
               <NavLink to="/contact">Contact Us</NavLink>
               <NavLink to="/pages/about">About</NavLink>
-              <NavLink to="/pages/bmr-calculator">View Profile</NavLink>
+              <NavLink to="/UpdateProfile">View Profile</NavLink>
             </div>
 
             <div className="flex items-center">
