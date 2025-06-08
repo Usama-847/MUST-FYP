@@ -1,7 +1,7 @@
 {
   "name": "shape-up-app",
   "version": "1.0.0",
-  "description": "<h1 align=\"center\"> 🌐 Shape Up App </h1> <p align=\"center\"> MongoDB, Expressjs, React/Redux, Nodejs </p>",
+  "description": "<h1 align=\"center\"> 🌐 FITLY AI </h1> <p align=\"center\"> MongoDB, Expressjs, React/Redux, Nodejs </p>",
   "type": "module",
   "main": "app.js",
   "scripts": {

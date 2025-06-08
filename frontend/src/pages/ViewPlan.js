@@ -225,10 +225,10 @@ const ViewPlan = () => {
   const calculateEarnedPoints = () => {
     let points = 0;
     Object.values(exerciseProgress).forEach((status) => {
-      if (status === "completed") points += 5; // 5 points per completed exercise
-      if (status === "skipped") points -= 2; // Deduct 2 points per skipped exercise
+      if (status === "completed") points += 5; 
+      if (status === "skipped") points -= 2;
     });
-    return Math.max(0, points); // Ensure points don't go negative
+    return Math.max(0, points); 
   };
 
   // Calculate points progress percentage for display

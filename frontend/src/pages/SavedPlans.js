@@ -135,7 +135,6 @@ const SavedPlans = () => {
 
   const handleCompleteWorkout = async (planId, dayIndex) => {
     try {
-      // Update local state first for immediate UI feedback
       setWorkoutStatuses((prev) => ({
         ...prev,
         [planId]: {
@@ -299,18 +298,6 @@ const SavedPlans = () => {
           </>
         )}
       </div>
-
-      <footer className="mt-8 py-4 bg-gray-100 text-center text-gray-600">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <p className="text-xs md:text-sm">
-            Always consult with a healthcare professional before starting any
-            new exercise program.
-          </p>
-          <p className="text-xs md:text-sm">
-            © 2025 AI Exercise Planner. All rights reserved.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 };

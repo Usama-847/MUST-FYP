@@ -25,7 +25,9 @@ const ExercisePage = () => {
     try {
       console.log("Fetching exercises for:", selectedMuscle);
       const response = await fetch(
-        `http://localhost:5123/api/exercises/${encodeURIComponent(selectedMuscle)}`
+        `http://localhost:9000/api/exercises/${encodeURIComponent(
+          selectedMuscle
+        )}`
       );
       if (!response.ok) {
         const errorData = await response.json();

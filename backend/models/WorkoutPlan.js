@@ -48,11 +48,11 @@ const workoutPlanSchema = new mongoose.Schema(
         required: true,
       },
       workoutDays: [workoutDaySchema],
-      tips: [String], // Added tips array
+      tips: [String], 
     },
     userInputs: {
       weight: String,
-      height: String, // Added height field
+      height: String, 
       goal: String,
       fitnessLevel: String,
       daysPerWeek: String,

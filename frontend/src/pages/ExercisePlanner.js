@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -16,7 +17,7 @@ const ExercisePlanner = () => {
     height: "",
     goal: "",
     fitnessLevel: "",
-    selectedDays: [], // New state for selected days
+    selectedDays: [],
     limitations: "",
   });
 
@@ -27,11 +28,24 @@ const ExercisePlanner = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  // Get user from Redux store
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const { userInfo } = useSelector((state) => state.auth);
 
-  // Add ref for the results section
   const resultsRef = useRef(null);
+
+  useEffect(() => {
+    if (location.state?.loadedPlan && location.state?.loadedUserData) {
+      setWorkoutPlan(location.state.loadedPlan);
+      setUserData(location.state.loadedUserData);
+      setIsRevealing(true);
+      toast.success("Exercise plan loaded successfully!");
+
+      // Clear the state to prevent reloading on subsequent renders
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate, location.pathname]);
 
   // Add effect to scroll to results when workout plan is generated
   useEffect(() => {
@@ -121,6 +135,13 @@ const ExercisePlanner = () => {
           ? planData.workoutDays
           : [],
         tips: Array.isArray(planData.tips) ? planData.tips : [],
+        planType: "Exercise Plan", // Add plan type identifier
+        planName: `${userData.selectedDays.length}-Day ${userData.goal
+          .replace(/([A-Z])/g, " $1")
+          .replace(/^./, (str) => str.toUpperCase())} ${
+          userData.fitnessLevel.charAt(0).toUpperCase() +
+          userData.fitnessLevel.slice(1)
+        } Plan`,
       };
 
       // If workoutDays is empty, create placeholder days
@@ -168,7 +189,8 @@ const ExercisePlanner = () => {
       return;
     }
 
-    setShowModal(true);
+    // Navigate to the SavedPlansPage with workout tab active and filter for Exercise Plans only
+    navigate("/saved-plans?tab=workout&planType=Exercise Plan");
   };
 
   const handleModalClose = () => {
@@ -197,6 +219,7 @@ const ExercisePlanner = () => {
         workoutPlan={workoutPlan}
         userData={userData}
         onSave={handlePlanSaved}
+        planTypeFilter="Exercise Plan" // Pass the plan type filter
       />
 
       {/* Header - Reduced padding */}
@@ -241,9 +264,14 @@ const ExercisePlanner = () => {
           <div ref={resultsRef}>
             <div className="bg-white rounded-lg shadow-md p-5 mb-6">
               <div className="flex flex-col md:flex-row justify-between items-center mb-4">
-                <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-0">
-                  Your AI-Generated Workout Plan
-                </h2>
+                <div className="mb-3 md:mb-0">
+                  <h2 className="text-lg md:text-xl font-semibold text-gray-800">
+                    {workoutPlan.planType}: {workoutPlan.planName}
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    Your AI-Generated Workout Plan
+                  </p>
+                </div>
                 <button
                   onClick={handleSaveClick}
                   className="px-4 py-1.5 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition duration-300"
@@ -267,18 +295,6 @@ const ExercisePlanner = () => {
           </div>
         )}
       </div>
-
-      <footer className="mt-8 py-4 bg-gray-100 text-center text-gray-600">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <p className="text-xs md:text-sm">
-            Always consult with a healthcare professional before starting any
-            new exercise program.
-          </p>
-          <p className="text-xs md:text-sm">
-            © 2025 AI Exercise Planner. All rights reserved.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 };

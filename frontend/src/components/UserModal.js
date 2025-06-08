@@ -4,7 +4,14 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 
-const UserModal = ({ show, handleClose, workoutPlan, userData, onSave }) => {
+const UserModal = ({
+  show,
+  handleClose,
+  workoutPlan,
+  userData,
+  onSave,
+  planTypeFilter,
+}) => {
   const [planName, setPlanName] = useState("");
   const [savedPlans, setSavedPlans] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -27,7 +34,16 @@ const UserModal = ({ show, handleClose, workoutPlan, userData, onSave }) => {
       const response = await axios.get("/api/workouts/saved", {
         headers: { Authorization: `Bearer ${userInfo.token}` },
       });
-      setSavedPlans(response.data);
+
+      // Filter plans based on planTypeFilter if provided
+      let filteredPlans = response.data;
+      if (planTypeFilter) {
+        filteredPlans = response.data.filter(
+          (plan) => plan.planData && plan.planData.planType === planTypeFilter
+        );
+      }
+
+      setSavedPlans(filteredPlans);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching saved plans:", error);
@@ -133,7 +149,11 @@ const UserModal = ({ show, handleClose, workoutPlan, userData, onSave }) => {
     <Modal show={show} onHide={handleClose} centered size="lg">
       <Modal.Header closeButton>
         <Modal.Title>
-          {viewMode ? "Your Saved Workout Plans" : "Save Your Workout Plan"}
+          {viewMode
+            ? `Your Saved ${
+                planTypeFilter ? planTypeFilter + "s" : "Workout Plans"
+              }`
+            : "Save Your Workout Plan"}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -142,7 +162,11 @@ const UserModal = ({ show, handleClose, workoutPlan, userData, onSave }) => {
             {loading ? (
               <p className="text-center">Loading your saved plans...</p>
             ) : savedPlans.length === 0 ? (
-              <p className="text-center">You don't have any saved plans yet.</p>
+              <p className="text-center">
+                {planTypeFilter
+                  ? `You don't have any saved ${planTypeFilter}s yet.`
+                  : "You don't have any saved plans yet."}
+              </p>
             ) : (
               <div>
                 <div className="plan-list mb-4">
@@ -160,6 +184,13 @@ const UserModal = ({ show, handleClose, workoutPlan, userData, onSave }) => {
                         <h5 className="mb-1">{plan.planName}</h5>
                         <small>{formatDate(plan.createdAt)}</small>
                       </div>
+                      {plan.planData && plan.planData.planType && (
+                        <p className="mb-1 text-primary">
+                          <small>
+                            <strong>Type:</strong> {plan.planData.planType}
+                          </small>
+                        </p>
+                      )}
                       <p className="mb-1">Goal: {plan.userInputs.goal}</p>
                       <p className="mb-0 text-muted">
                         Fitness Level: {plan.userInputs.fitnessLevel}
@@ -173,6 +204,13 @@ const UserModal = ({ show, handleClose, workoutPlan, userData, onSave }) => {
                     <h4 className="mb-3">{selectedPlan.planName}</h4>
                     <div className="workout-summary">
                       <h5>Workout Summary:</h5>
+                      {selectedPlan.planData &&
+                        selectedPlan.planData.planType && (
+                          <p>
+                            <strong>Type:</strong>{" "}
+                            {selectedPlan.planData.planType}
+                          </p>
+                        )}
                       <p>
                         <strong>Goal:</strong> {selectedPlan.userInputs.goal}
                       </p>
@@ -201,22 +239,27 @@ const UserModal = ({ show, handleClose, workoutPlan, userData, onSave }) => {
 
                       <div className="workout-details mt-3">
                         <h5>Workout Plan:</h5>
-                        {selectedPlan.planData.workoutDays.map((day, index) => (
-                          <div key={index} className="day-plan mb-3">
-                            <h6 className="bg-light p-2">{day.day}</h6>
-                            <ul className="list-unstyled">
-                              {day.exercises.map((exercise, idx) => (
-                                <li key={idx} className="mb-2">
-                                  <strong>{exercise.name}</strong>:{" "}
-                                  {exercise.sets} sets × {exercise.reps} reps
-                                  {exercise.weight && (
-                                    <span> ({exercise.weight})</span>
-                                  )}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
+                        {selectedPlan.planData.workoutDays &&
+                          selectedPlan.planData.workoutDays.map(
+                            (day, index) => (
+                              <div key={index} className="day-plan mb-3">
+                                <h6 className="bg-light p-2">{day.day}</h6>
+                                <ul className="list-unstyled">
+                                  {day.exercises &&
+                                    day.exercises.map((exercise, idx) => (
+                                      <li key={idx} className="mb-2">
+                                        <strong>{exercise.name}</strong>:{" "}
+                                        {exercise.sets} sets × {exercise.reps}{" "}
+                                        reps
+                                        {exercise.weight && (
+                                          <span> ({exercise.weight})</span>
+                                        )}
+                                      </li>
+                                    ))}
+                                </ul>
+                              </div>
+                            )
+                          )}
                       </div>
                     </div>
                   </div>
@@ -242,6 +285,11 @@ const UserModal = ({ show, handleClose, workoutPlan, userData, onSave }) => {
 
             <div className="plan-summary p-3 bg-light rounded mb-3">
               <h5>Plan Summary</h5>
+              {workoutPlan && workoutPlan.planType && (
+                <p>
+                  <strong>Type:</strong> {workoutPlan.planType}
+                </p>
+              )}
               <p>
                 <strong>Goal:</strong> {userData.goal}
               </p>
