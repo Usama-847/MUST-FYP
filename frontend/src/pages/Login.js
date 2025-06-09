@@ -11,7 +11,6 @@ import Loader from "../components/Loader";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // State to toggle password visibility
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
@@ -23,7 +22,7 @@ const Login = () => {
 
   useEffect(() => {
     if (userInfo) {
-      navigate("/pages/features");
+      navigate("/pages/dashboard");
     }
   }, [navigate, userInfo]);
 
@@ -32,7 +31,7 @@ const Login = () => {
     try {
       const res = await login({ email, password }).unwrap();
       dispatch(setCredentials({ ...res }));
-      navigate("/pages/features");
+      navigate("/pages/dashboard");
       toast.success("Login Successfully!");
     } catch (err) {
       toast.error(err?.data?.message || err.error);

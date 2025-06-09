@@ -1,7 +1,7 @@
 {
   "name": "shape-up-app",
   "version": "1.0.0",
-  "description": "<h1 align=\"center\"> 🌐 Shape Up App </h1> <p align=\"center\"> MongoDB, Expressjs, React/Redux, Nodejs </p>",
+  "description": "<h1 align=\"center\"> 🌐 FITLY AI </h1> <p align=\"center\"> MongoDB, Expressjs, React/Redux, Nodejs </p>",
   "type": "module",
   "main": "app.js",
   "scripts": {
@@ -10,6 +10,8 @@
     "client": "npm run start --prefix ../frontend",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "test": "jest",
+    "build": "npm run build-frontend",
+    "build-frontend": "cd ../frontend && npm install && npm run build && cp -r build ../backend/build",
     "vercel-build": "echo hello"
   },
   "repository": {
@@ -33,6 +35,7 @@
     "express-async-handler": "^1.2.0",
     "http-proxy-middleware": "^2.0.6",
     "jsonwebtoken": "^9.0.0",
+    "mongodb-schema": "^12.6.2",
     "mongoose": "^7.2.1",
     "react-query": "^3.39.3"
   },

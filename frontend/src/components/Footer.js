@@ -19,8 +19,8 @@ const Footer = () => {
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-gray-900">Contact Us</h4>
             <div className="flex flex-col space-y-2">
-              <p className="text-gray-600">123 Fitness Street</p>
-              <p className="text-gray-600">New York, NY 10001</p>
+              <p className="text-gray-600">Mirpur MUST Univeristy</p>
+              <p className="text-gray-600">Mirpur, MUST</p>
               <p className="text-gray-600">Email: support@fitly.com</p>
               <p className="text-gray-600">Phone: (555) 123-4567</p>
             </div>

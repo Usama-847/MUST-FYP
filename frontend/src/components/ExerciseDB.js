@@ -1,102 +1,197 @@
 import React, { useState } from "react";
-import axios from "axios";
-import "./ExerciseDB.css";
 
 const ExercisePage = () => {
   const [selectedMuscle, setSelectedMuscle] = useState("");
   const [exercises, setExercises] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [exercisesPerPage] = useState(10);
 
-  const handleMuscleChange = (e) => {
-    setSelectedMuscle(e.target.value);
-  };
+  const muscleGroups = [
+    "back",
+    "cardio",
+    "chest",
+    "lower arms",
+    "lower legs",
+    "neck",
+    "shoulders",
+    "upper arms",
+    "upper legs",
+    "waist",
+  ];
 
   const handleSearch = async () => {
-    const options = {
-      method: "GET",
-      url: `https://exercisedb.p.rapidapi.com/exercises/bodyPart/${selectedMuscle}`,
-      headers: {
-        "X-RapidAPI-Key": "3190d2cd3amshe401585bbe87576p18b44djsn7669ffd89aa8",
-        "X-RapidAPI-Host": "exercisedb.p.rapidapi.com",
-      },
-    };
-
+    if (!selectedMuscle) {
+      alert("Please select a muscle group");
+      return;
+    }
     try {
-      const response = await axios.request(options);
-      setExercises(response.data);
+      const response = await fetch(
+        `http://localhost:9000/api/exercises/${encodeURIComponent(
+          selectedMuscle
+        )}`
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || `HTTP error! Status: ${response.status}`
+        );
+      }
+      const data = await response.json();
+      setExercises(data);
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching exercises:", error);
+      alert(`Error: ${error.message}`);
+      setExercises([]);
     }
   };
 
-  const indexOfLastExercise = currentPage * exercisesPerPage;
-  const indexOfFirstExercise = indexOfLastExercise - exercisesPerPage;
-  const currentExercises = exercises.slice(
-    indexOfFirstExercise,
-    indexOfLastExercise
-  );
-
-  const paginate = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-
-  const capitalizeFirstLetter = (string) => {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+  const handleReset = () => {
+    setSelectedMuscle("");
+    setExercises([]);
   };
 
   return (
-    <div>
-      <h2 className="text-white">Search For A Perfect Exercise</h2>
-      <div className="select-container my-5">
-        <select value={selectedMuscle} onChange={handleMuscleChange}>
-          <option value="">Select A Muscle Group</option>
-          <option value="back">Back</option>
-          <option value="cardio">Cardio</option>
-          <option value="chest">Chest</option>
-          <option value="lower%20arms">Lower Arms</option>
-          <option value="lower%20legs">Lower Legs</option>
-          <option value="neck">Neck</option>
-          <option value="shoulders">Shoulders</option>
-          <option value="upper%20arms">Upper Arms</option>
-          <option value="upper%20legs">Upper Legs</option>
-          <option value="waist">Waist</option>
+    <div
+      style={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        fontFamily: "sans-serif",
+      }}
+    >
+      {/* Header */}
+      <header
+        style={{
+          height: "10%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#f0f0f0",
+          fontSize: "1.5rem",
+          fontWeight: "bold",
+          marginTop: "4rem",
+        }}
+      >
+        Exercise Finder
+      </header>
+
+      {/* Search Controls */}
+      <section
+        style={{
+          height: "10%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "1rem",
+          flexWrap: "wrap",
+          padding: "1rem",
+        }}
+      >
+        <select
+          value={selectedMuscle}
+          onChange={(e) => setSelectedMuscle(e.target.value)}
+          style={{ padding: "0.5rem", fontSize: "1rem" }}
+        >
+          <option value="">Select Muscle Group</option>
+          {muscleGroups.map((group) => (
+            <option key={group} value={group}>
+              {group}
+            </option>
+          ))}
         </select>
-        <button onClick={handleSearch} className="mx-3">
+
+        <button
+          onClick={handleSearch}
+          style={{
+            padding: "0.5rem 1rem",
+            backgroundColor: "#28a745",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "1rem",
+          }}
+        >
           Search
         </button>
-      </div>
-      {currentExercises.length > 0 ? (
-        <div className="exercise-container">
-          {currentExercises.map((exercise) => (
-            <div key={exercise.id} className="exercise-card">
-              <h3>{capitalizeFirstLetter(exercise.name)}</h3>
-              <div className="gif-container">
-                <img
-                  src={exercise.gifUrl}
-                  alt={exercise.name}
-                  className="exercise-gif"
-                />
+
+        <button
+          onClick={handleReset}
+          style={{
+            padding: "0.5rem 1rem",
+            backgroundColor: "#dc3545",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "1rem",
+          }}
+        >
+          Reset
+        </button>
+      </section>
+
+      {/* Exercise Images */}
+      <section
+        style={{
+          height: "80%",
+          overflowY: "auto",
+          padding: "1rem",
+        }}
+      >
+        {exercises.length > 0 ? (
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "1rem",
+              justifyContent: "center",
+            }}
+          >
+            {exercises.map((exercise, index) => (
+              <div
+                key={index}
+                style={{
+                  width: "250px",
+                  textAlign: "center",
+                  border: "1px solid #ccc",
+                  padding: "0.5rem",
+                  borderRadius: "8px",
+                  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                <h3 style={{ fontSize: "1rem", margin: "0 0 0.5rem 0" }}>
+                  {exercise.name}
+                </h3>
+                <div
+                  style={{
+                    width: "220px",
+                    height: "220px",
+                    margin: "0 auto",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "6px",
+                    backgroundColor: "#f8f9fa",
+                    border: "1px solid #e9ecef",
+                  }}
+                >
+                  <img
+                    src={exercise.path}
+                    alt={exercise.name}
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                      objectFit: "contain",
+                      borderRadius: "4px",
+                    }}
+                  />
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <h3 className="text-white">
-          Exercises and demonstrations will be displayed here.
-        </h3>
-      )}
-      {exercises.length > exercisesPerPage && (
-        <div className="pagination">
-          {Array.from({
-            length: Math.ceil(exercises.length / exercisesPerPage),
-          }).map((_, index) => (
-            <button key={index} onClick={() => paginate(index + 1)}>
-              {index + 1}
-            </button>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        ) : (
+          <p style={{ textAlign: "center" }}>No exercises found.</p>
+        )}
+      </section>
     </div>
   );
 };
