@@ -25,9 +25,9 @@ import Dashboard from "./pages/Dashboard";
 import Ai from "./pages/Ai";
 import Contactus from "./pages/Contactus";
 import SavedPlans from "./pages/SavedPlans";
-import ViewPlan from "./pages/ViewPlan"; // Import the new component
-
-// Create authentication context
+import ViewPlan from "./pages/ViewPlan";
+import MealPlan from "./components/MealPlan";
+import MealPlanDetails from "./components/MealPlanDetails";
 export const AuthContext = createContext();
 
 const App = () => {
@@ -48,7 +48,6 @@ const App = () => {
             setUser(response.data);
             setIsAuthenticated(true);
           } else {
-            // Invalid response
             localStorage.removeItem("token");
             setUser(null);
             setIsAuthenticated(false);
@@ -96,7 +95,9 @@ const App = () => {
   return (
     <AuthContext.Provider value={authContextValue}>
       <ToastContainer />
-      <Box width="400px" sx={{ width: { x1: "1488px" } }} m="auto">
+      <Box width="400px" sx={{ width: { xl: "1488px" } }} m="auto">
+        {" "}
+        {/* Fixed typo: x1 to xl */}
         {/* Only render Header when authenticated */}
         {isAuthenticated && <Header />}
         {!loading && (
@@ -110,6 +111,8 @@ const App = () => {
               path="/pages/exercise-planner"
               element={<ExercisePlanner />}
             />
+            <Route path="/components/Meal-plan" element={<MealPlan />} />{" "}
+            {/* Updated path */}
             <Route path="/pages/bmr-calculator" element={<BMRCalculator />} />
             <Route
               path="/pages/nutrition-checker"
@@ -117,8 +120,8 @@ const App = () => {
             />
             <Route path="/pages/dashboard" element={<Dashboard />} />
             <Route path="/saved-plans" element={<SavedPlans />} />
-            <Route path="/plan/:planId" element={<ViewPlan />} />{" "}
-            {/* New route for viewing a single plan */}
+            <Route path="/meal/:mealId" element={<MealPlanDetails />} />
+            <Route path="/plan/:planId" element={<ViewPlan />} />
             <Route path="/pages/Ai" element={<Ai />} />
             {/* Public Route */}
             <Route path="" element={<PublicRoute />}>

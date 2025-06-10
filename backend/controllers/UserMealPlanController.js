@@ -3,9 +3,6 @@ import MealPlan from "../models/UserMealPlanModel.js";
 import User from "../models/userModel.js";
 import { generateContent } from "../utils/geminiService.js";
 
-// @desc    Generate a meal plan using Gemini AI
-// @route   POST /api/meals/generate
-// @access  Public
 const generateMealPlan = asyncHandler(async (req, res) => {
   const {
     weight,
@@ -131,16 +128,13 @@ const generateMealPlan = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Save a meal plan
-// @route   POST /api/meals/save
-// @access  Private
 const saveMealPlan = asyncHandler(async (req, res) => {
-  const { 
-    userId, 
-    planName, 
-    planData, 
+  const {
+    userId,
+    planName,
+    planData,
     userInputs,
-    date = new Date().toISOString().split('T')[0] // Default to current date if not provided
+    date = new Date().toISOString().split("T")[0], // Default to current date if not provided
   } = req.body;
 
   // Verify user exists
@@ -179,9 +173,6 @@ const saveMealPlan = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Get all saved meal plans for a user
-// @route   GET /api/meals/saved
-// @access  Private
 const getSavedMealPlans = asyncHandler(async (req, res) => {
   const mealPlans = await MealPlan.find({ user: req.user._id }).sort({
     date: -1,
@@ -190,9 +181,18 @@ const getSavedMealPlans = asyncHandler(async (req, res) => {
   res.json(mealPlans);
 });
 
-// @desc    Get a specific meal plan by date
-// @route   GET /api/meals/:date
-// @access  Private
+// NEW: Get meal plan by ID
+const getMealPlanById = asyncHandler(async (req, res) => {
+  const mealPlan = await MealPlan.findById(req.params.id);
+
+  if (mealPlan && mealPlan.user.toString() === req.user._id.toString()) {
+    res.json(mealPlan);
+  } else {
+    res.status(404);
+    throw new Error("Meal plan not found");
+  }
+});
+
 const getMealPlanByDate = asyncHandler(async (req, res) => {
   const mealPlan = await MealPlan.findOne({
     user: req.user._id,
@@ -207,9 +207,6 @@ const getMealPlanByDate = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Delete a meal plan
-// @route   DELETE /api/meals/:id
-// @access  Private
 const deleteMealPlan = asyncHandler(async (req, res) => {
   const mealPlan = await MealPlan.findById(req.params.id);
 
@@ -222,7 +219,6 @@ const deleteMealPlan = asyncHandler(async (req, res) => {
   }
 });
 
-// Helper function to create fallback meal plan if AI parsing fails
 function createFallbackMealPlan(
   mealsPerDay,
   dietaryPreference,
@@ -299,6 +295,7 @@ export {
   generateMealPlan,
   saveMealPlan,
   getSavedMealPlans,
+  getMealPlanById,
   getMealPlanByDate,
   deleteMealPlan,
 };

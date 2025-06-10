@@ -62,7 +62,7 @@ const FeaturesPage = () => {
       title: "Meal Planner",
       description:
         "The Meal Planner helps you plan your meals for the day—a great way to save time, money, and eat healthier!",
-      link: "/pages/profile/meal-plan",
+      link: "/components/Meal-plan",
       icon: <FaUtensils />,
     },
     {

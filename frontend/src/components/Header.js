@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useLogoutMutation } from "../slices/usersApiSlice";
 import { logout } from "../slices/authSlice";
 import { toast } from "react-toastify";
-import MenuIcon  from "@mui/icons-material/Menu";
+import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import Logo from "../assets/images/Logo.png";
 
@@ -60,7 +60,7 @@ const Header = () => {
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img src={Logo} alt="logo" className="w-24" />
+            <img src={Logo} alt="logo" className="w-24 rounded-full" />
           </Link>
 
           {/* Mobile Menu Button */}

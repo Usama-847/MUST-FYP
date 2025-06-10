@@ -15,6 +15,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
 import UserModal from "../components/MealUserModal";
 import ThinkingAnimation from "../components/ThinkingAnimation";
+import Header from "./Header";
 
 const MealPlan = () => {
   const [userData, setUserData] = useState({
@@ -276,6 +277,7 @@ const MealPlan = () => {
 
   return (
     <>
+      <Header />
       <Container className="py-4">
         <Row>
           <Col lg={8} className="mx-auto">
