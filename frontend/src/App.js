@@ -26,8 +26,8 @@ import Ai from "./pages/Ai";
 import Contactus from "./pages/Contactus";
 import SavedPlans from "./pages/SavedPlans";
 import ViewPlan from "./pages/ViewPlan";
-import MealPlan from "./components/MealPlan"; 
-// Create authentication context
+import MealPlan from "./components/MealPlan";
+import MealPlanDetails from "./components/MealPlanDetails";
 export const AuthContext = createContext();
 
 const App = () => {
@@ -95,7 +95,9 @@ const App = () => {
   return (
     <AuthContext.Provider value={authContextValue}>
       <ToastContainer />
-      <Box width="400px" sx={{ width: { xl: "1488px" } }} m="auto"> {/* Fixed typo: x1 to xl */}
+      <Box width="400px" sx={{ width: { xl: "1488px" } }} m="auto">
+        {" "}
+        {/* Fixed typo: x1 to xl */}
         {/* Only render Header when authenticated */}
         {isAuthenticated && <Header />}
         {!loading && (
@@ -105,12 +107,20 @@ const App = () => {
             <Route path="/pages/workouts" element={<Workouts />} />
             <Route path="/contact" element={<Contactus />} />
             <Route path="/pages/about" element={<About />} />
-            <Route path="/pages/exercise-planner" element={<ExercisePlanner />} />
-            <Route path="/components/Meal-plan" element={<MealPlan />} /> {/* Updated path */}
+            <Route
+              path="/pages/exercise-planner"
+              element={<ExercisePlanner />}
+            />
+            <Route path="/components/Meal-plan" element={<MealPlan />} />{" "}
+            {/* Updated path */}
             <Route path="/pages/bmr-calculator" element={<BMRCalculator />} />
-            <Route path="/pages/nutrition-checker" element={<NutritionChecker />} />
+            <Route
+              path="/pages/nutrition-checker"
+              element={<NutritionChecker />}
+            />
             <Route path="/pages/dashboard" element={<Dashboard />} />
             <Route path="/saved-plans" element={<SavedPlans />} />
+            <Route path="/meal/:mealId" element={<MealPlanDetails />} />
             <Route path="/plan/:planId" element={<ViewPlan />} />
             <Route path="/pages/Ai" element={<Ai />} />
             {/* Public Route */}

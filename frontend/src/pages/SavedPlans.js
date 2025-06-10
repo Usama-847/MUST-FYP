@@ -214,13 +214,21 @@ const SavedPlans = () => {
       <div className="container mx-auto px-4 py-6 max-w-4xl">
         <div className="flex border-b mb-6">
           <button
-            className={`px-4 py-2 font-medium ${activeTab === "exercise" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500 hover:text-gray-700"}`}
+            className={`px-4 py-2 font-medium ${
+              activeTab === "exercise"
+                ? "border-b-2 border-blue-600 text-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
             onClick={() => setActiveTab("exercise")}
           >
             Exercise Plans
           </button>
           <button
-            className={`px-4 py-2 font-medium ${activeTab === "meal" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500 hover:text-gray-700"}`}
+            className={`px-4 py-2 font-medium ${
+              activeTab === "meal"
+                ? "border-b-2 border-blue-600 text-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
             onClick={() => setActiveTab("meal")}
           >
             Meal Plans
@@ -398,8 +406,11 @@ const SavedPlans = () => {
                               <button
                                 className="text-white bg-blue-500 px-3 py-1 rounded text-sm hover:bg-blue-600 transition"
                                 onClick={() =>
-                                  console.log("Navigating to:", `/meal/${meal._id}`)
-                                } // Debug log
+                                  console.log(
+                                    "Navigating to:",
+                                    `/meal/${meal._id}`
+                                  )
+                                }
                               >
                                 View
                               </button>
