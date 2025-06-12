@@ -128,7 +128,7 @@ const Leaderboard = () => {
 
       {/* User's Current Rank */}
       {userRank && (
-        <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+        <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-semibold text-gray-800">Your Current Rank</h3>
@@ -215,10 +215,6 @@ const Leaderboard = () => {
                                 You
                               </span>
                             )}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            Last active:{" "}
-                            {new Date(user.lastUpdated).toLocaleDateString()}
                           </div>
                         </div>
                       </div>

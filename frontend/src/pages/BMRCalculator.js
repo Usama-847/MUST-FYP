@@ -13,6 +13,7 @@ const BMRCalculator = () => {
         <FormContainer>
           <Box
             sx={{
+              
               display: "flex",
               justifyContent: "center",
               alignItems: "center",

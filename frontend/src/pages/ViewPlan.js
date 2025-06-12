@@ -135,17 +135,42 @@ const ViewPlan = () => {
     return () => clearInterval(interval);
   }, [plan, planId, navigate, exerciseProgress]);
 
-  // Update exercise timers
+  // Update exercise timers and auto-complete sets
   useEffect(() => {
     const interval = setInterval(() => {
       setExerciseTimers((prev) => {
         const updatedTimers = { ...prev };
         Object.keys(updatedTimers).forEach((key) => {
-          if (updatedTimers[key].startTime) {
+          const [dayIndex, exIndex] = key.split('-').map(Number);
+          const totalSets = plan?.planData?.workoutDays[dayIndex]?.exercises[exIndex]?.sets || 0;
+
+          if (updatedTimers[key].isRunning) {
             const elapsed = Math.floor(
               (Date.now() - updatedTimers[key].startTime) / 1000
             );
-            updatedTimers[key].elapsedTime = elapsed;
+            if (elapsed >= MIN_SET_TIME) {
+              // Auto-complete the set
+              setCompletedSets((prevSets) => {
+                const currentSets = prevSets[key] || 0;
+                if (currentSets < totalSets) {
+                  toast.success(`Set ${currentSets + 1} completed automatically`);
+                  return {
+                    ...prevSets,
+                    [key]: currentSets + 1,
+                  };
+                }
+                return prevSets;
+              });
+
+              // Reset timer
+              updatedTimers[key] = {
+                startTime: null,
+                elapsedTime: 0,
+                isRunning: false,
+              };
+            } else {
+              updatedTimers[key].elapsedTime = elapsed;
+            }
           }
         });
         return updatedTimers;
@@ -153,7 +178,7 @@ const ViewPlan = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [plan]);
 
   const fetchPlanDetails = async () => {
     setLoading(true);
@@ -225,10 +250,10 @@ const ViewPlan = () => {
   const calculateEarnedPoints = () => {
     let points = 0;
     Object.values(exerciseProgress).forEach((status) => {
-      if (status === "completed") points += 5; 
+      if (status === "completed") points += 5;
       if (status === "skipped") points -= 2;
     });
-    return Math.max(0, points); 
+    return Math.max(0, points);
   };
 
   // Calculate points progress percentage for display
@@ -251,11 +276,12 @@ const ViewPlan = () => {
       [exerciseId]: {
         startTime: Date.now(),
         elapsedTime: 0,
+        isRunning: true,
       },
     }));
   };
 
-  // Mark set as completed
+  // Mark set as completed (used for manual completion)
   const handleCompleteSet = (dayIndex, exerciseIndex, totalSets) => {
     const exerciseId = `${dayIndex}-${exerciseIndex}`;
     const timer = exerciseTimers[exerciseId];
@@ -279,12 +305,13 @@ const ViewPlan = () => {
       return prev;
     });
 
-    // Reset timer for the next set
+    // Reset timer
     setExerciseTimers((prev) => ({
       ...prev,
       [exerciseId]: {
-        startTime: Date.now(),
+        startTime: null,
         elapsedTime: 0,
+        isRunning: false,
       },
     }));
   };
@@ -587,7 +614,7 @@ const ViewPlan = () => {
                               const isSkipped = isExerciseSkipped(dayIndex, exIndex);
                               const timer = exerciseTimers[exerciseId];
                               const completed = completedSets[exerciseId] || 0;
-                              const canCompleteSet = timer && timer.elapsedTime >= MIN_SET_TIME;
+                              const canCompleteSet = timer && timer.elapsedTime >= MIN_SET_TIME && timer.isRunning;
                               const canCompleteExercise = completed >= exercise.sets;
 
                               return (
@@ -684,7 +711,7 @@ const ViewPlan = () => {
                                   {/* Action buttons - Only shown for current day */}
                                   {!isCompleted && !isSkipped && isDayToday && (
                                     <div className="mt-3 flex gap-2 flex-wrap">
-                                      {!timer && completed < exercise.sets && (
+                                      {(!timer || !timer.isRunning) && completed < exercise.sets && (
                                         <button
                                           onClick={() =>
                                             handleStartSet(dayIndex, exIndex)
@@ -714,12 +741,16 @@ const ViewPlan = () => {
                                           Start Set
                                         </button>
                                       )}
-                                      {canCompleteSet && completed < exercise.sets && (
+                                      {timer && timer.isRunning && completed < exercise.sets && (
                                         <button
                                           onClick={() =>
                                             handleCompleteSet(dayIndex, exIndex, exercise.sets)
                                           }
-                                          className="px-3 py-1 bg-teal-500 text-white text-sm rounded hover:bg-teal-600 transition duration-300 flex items-center"
+                                          className={`px-3 py-1 text-sm rounded transition duration-300 flex items-center ${
+                                            canCompleteSet
+                                              ? "bg-teal-500 text-white hover:bg-teal-600"
+                                              : "bg-teal-300 text-white cursor-not-allowed"
+                                          }`}
                                         >
                                           <svg
                                             className="w-4 h-4 mr-1"

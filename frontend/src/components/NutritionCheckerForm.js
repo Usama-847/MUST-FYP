@@ -49,7 +49,7 @@ const NutritionCheckerForm = () => {
               value={foodItem}
               onChange={(e) => setFoodItem(e.target.value)}
               placeholder="Enter food item"
-              className="px-4 py-2 rounded mb-3 text-gray-800"
+              className="px-4 py-2 rounded mb-3 text-gray-800 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
             <button
               type="button"
@@ -64,13 +64,13 @@ const NutritionCheckerForm = () => {
 
       {nutritionResult && (
         <div className="mt-8">
-          <h2 className="text-2xl font-bold mb-4 text-white">
+          <h2 className="text-2xl font-bold mb-4 text-black">
             Nutrition Results
           </h2>
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white bg-opacity-10 border border-gray-600 rounded-lg">
+            <table className="min-w-full bg-black bg-opacity-10 border border-gray-600 rounded-lg border-collapse">
               <thead>
-                <tr className="border-b border-gray-600">
+                <tr className="border-b border-gray-600 bg-gray-800">
                   <th className="px-4 py-2 text-left">Name</th>
                   <th className="px-4 py-2 text-left">Serving Size</th>
                   <th className="px-4 py-2 text-left">Calories</th>
@@ -85,7 +85,7 @@ const NutritionCheckerForm = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr className="hover:bg-gray-700">
+                <tr className="bg-gray-900 text-white">
                   <td className="px-4 py-2 border-b border-gray-600">
                     {nutritionResult.name}
                   </td>

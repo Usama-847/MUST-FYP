@@ -19,6 +19,11 @@ function Dashboard() {
   });
   const [progressData, setProgressData] = useState({});
   const [activeTab, setActiveTab] = useState("overview");
+  const [leaderboardData, setLeaderboardData] = useState({
+    userRank: null,
+    stats: null,
+    leaderboard: [],
+  });
 
   const { userInfo } = useSelector((state) => state.auth);
 
@@ -28,6 +33,7 @@ function Dashboard() {
       return;
     }
     fetchDashboardData();
+    fetchLeaderboardData();
 
     const savedProgress = localStorage.getItem("workout_progress");
     if (savedProgress) {
@@ -38,7 +44,7 @@ function Dashboard() {
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      // Fetch plans data with improved error handling
+      // Fetch plans data
       let plansData = [];
       try {
         const plansRes = await fetch("/api/workouts", {
@@ -54,10 +60,8 @@ function Dashboard() {
             const data = await plansRes.json();
             plansData = Array.isArray(data) ? data : data.data || [];
           } else {
-            // Handle non-JSON response
             const textResponse = await plansRes.text();
             console.warn("Plans API returned non-JSON response:", textResponse);
-            // Try to parse as JSON if it's actually JSON with wrong content-type
             try {
               const parsedData = JSON.parse(textResponse);
               plansData = Array.isArray(parsedData)
@@ -74,7 +78,7 @@ function Dashboard() {
         console.warn("Plans API not available:", plansError.message);
       }
 
-      // Fetch points data with improved error handling
+      // Fetch points data
       let pointsDataRes = {
         totalPlans: 0,
         averagePoints: 0,
@@ -96,7 +100,6 @@ function Dashboard() {
             const data = await pointsRes.json();
             pointsDataRes = data.data || data || pointsDataRes;
           } else {
-            // Handle non-JSON response
             const textResponse = await pointsRes.text();
             console.warn(
               "Points API returned non-JSON response:",
@@ -126,7 +129,46 @@ function Dashboard() {
     }
   };
 
-  // Progress calculation helpers
+  const fetchLeaderboardData = async () => {
+    try {
+      // Fetch leaderboard stats
+      const statsRes = await fetch("/api/leaderboard/stats", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userInfo?.token || ""}`,
+        },
+      });
+      const statsData = statsRes.ok ? await statsRes.json() : null;
+
+      // Fetch user rank
+      const userRankRes = await fetch(`/api/leaderboard/user/${userInfo.email}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userInfo?.token || ""}`,
+        },
+      });
+      const userRankData = userRankRes.ok ? await userRankRes.json() : null;
+
+      // Fetch leaderboard
+      const leaderboardRes = await fetch("/api/leaderboard", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userInfo?.token || ""}`,
+        },
+      });
+      const leaderboardDataRes = leaderboardRes.ok ? await leaderboardRes.json() : null;
+
+      setLeaderboardData({
+        userRank: userRankData?.data || null,
+        stats: statsData?.data || null,
+        leaderboard: leaderboardDataRes?.data || [],
+      });
+    } catch (error) {
+      console.error("Error fetching leaderboard data:", error);
+      toast.error("Failed to load analytics data");
+    }
+  };
+
   const getOverallProgress = () => {
     const planIds = Object.keys(progressData);
     if (!planIds.length) return 0;
@@ -157,7 +199,6 @@ function Dashboard() {
 
       if (response.ok) {
         setSavedPlans(savedPlans.filter((plan) => plan._id !== planId));
-        // Remove from progress data
         const updatedProgress = { ...progressData };
         delete updatedProgress[planId];
         setProgressData(updatedProgress);
@@ -166,7 +207,6 @@ function Dashboard() {
           JSON.stringify(updatedProgress)
         );
         toast.success("Plan deleted successfully");
-        // Refresh dashboard data
         fetchDashboardData();
       } else {
         const errorText = await response.text();
@@ -221,7 +261,7 @@ function Dashboard() {
               <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
               <path
                 fillRule="evenodd"
-                d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2 2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
                 clipRule="evenodd"
               />
             </svg>
@@ -252,6 +292,16 @@ function Dashboard() {
                 }`}
               >
                 Leaderboard
+              </button>
+              <button
+                onClick={() => setActiveTab("analytics")}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === "analytics"
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                Analytics
               </button>
             </nav>
           </div>
@@ -341,6 +391,12 @@ function Dashboard() {
             <Leaderboard />
           </div>
         )}
+
+        {activeTab === "analytics" && (
+          <div className="bg-white rounded-lg shadow-md p-5">
+            <Analytics leaderboardData={leaderboardData} />
+          </div>
+        )}
       </div>
     </>
   );
@@ -405,7 +461,6 @@ const StatCard = ({ title, value, description, color, percentage }) => {
   );
 };
 
-// Reusable Plan Progress Component
 const PlanProgressCard = ({ plan, onViewDetails, onContinue, onDelete }) => (
   <div className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition duration-300">
     <div className="flex justify-between items-start mb-2">
@@ -497,5 +552,154 @@ const PlanProgressCard = ({ plan, onViewDetails, onContinue, onDelete }) => (
     </div>
   </div>
 );
+
+const Analytics = ({ leaderboardData }) => {
+  const { userRank, stats } = leaderboardData;
+
+  const getRankIcon = (rank) => {
+    switch (rank) {
+      case 1:
+        return "🥇";
+      case 2:
+        return "🥈";
+      case 3:
+        return "🥉";
+      default:
+        return `#${rank}`;
+    }
+  };
+
+  const getRankColor = (rank) => {
+    switch (rank) {
+      case 1:
+        return "text-yellow-600 bg-yellow-100";
+      case 2:
+        return "text-gray-600 bg-gray-100";
+      case 3:
+        return "text-orange-600 bg-orange-100";
+      default:
+        return "text-blue-600 bg-blue-100";
+    }
+  };
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">📊 Analytics</h2>
+      <p className="text-gray-600 mb-6">
+        Track your progress and see how you compare to the community.
+      </p>
+
+      {userRank && stats ? (
+        <div className="space-y-6">
+          {/* User Rank and Score */}
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 border border-gray-200">
+            <h3 className="font-semibold text-gray-800 mb-2">Your Performance</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <StatCard
+                title="Your Rank"
+                value={getRankIcon(userRank.rank)}
+                description="Your position in the leaderboard"
+                color="blue"
+              />
+              <StatCard
+                title="Average Score"
+                value={`${userRank.averageScore}%`}
+                description="Your completion rate"
+                color="purple"
+                percentage={userRank.averageScore}
+              />
+              <StatCard
+                title="Total Plans"
+                value={userRank.totalPlans}
+                description="Workout and meal plans"
+                color="orange"
+              />
+            </div>
+          </div>
+
+          {/* Community Comparison */}
+          <div className="bg-white rounded-lg p-4 border border-gray-200">
+            <h3 className="font-semibold text-gray-800 mb-2">Community Comparison</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-gray-600 mb-2">Your Score vs Community</p>
+                <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                  <div
+                    className="bg-blue-600 h-2.5 rounded-full"
+                    style={{ width: `${Math.min(100, userRank.averageScore)}%` }}
+                  ></div>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Your Score: <span className="font-bold">{userRank.averageScore}%</span>
+                </p>
+                <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                  <div
+                    className="bg-gray-600 h-2.5 rounded-full"
+                    style={{ width: `${Math.min(100, stats.averageScore)}%` }}
+                  ></div>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Community Average: <span className="font-bold">{stats.averageScore}%</span>
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 mb-2">Community Stats</p>
+                <p className="text-sm text-gray-600">
+                  Total Users: <span className="font-bold">{stats.totalUsers}</span>
+                </p>
+                <p className="text-sm text-gray-600">
+                  Total Plans: <span className="font-bold">{stats.totalPlans}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Progress Overview */}
+          <div className="bg-white rounded-lg p-4 border border-gray-200">
+            <h3 className="font-semibold text-gray-800 mb-2">Progress Overview</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <StatCard
+                title="Workout Plans"
+                value={userRank.workoutPlans || 0}
+                description="Completed workout plans"
+                color="blue"
+              />
+              <StatCard
+                title="Meal Plans"
+                value={userRank.mealPlans || 0}
+                description="Completed meal plans"
+                color="green"
+              />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="text-center py-8">
+          <div className="text-gray-400 mb-4">
+            <svg
+              className="w-16 h-16 mx-auto"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+              />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No analytics data yet
+          </h3>
+          <p className="text-gray-500">
+            Complete workout or meal plans to see your analytics!
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default Dashboard;
