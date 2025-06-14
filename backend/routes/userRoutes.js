@@ -13,31 +13,19 @@ import {
   exportUserData,
   deleteUserAccount,
 } from "../controllers/userController.js";
-import {
-  logWaterIntake,
-  updateWaterIntake,
-  getUserWaterIntake,
-} from "../controllers/userWaterIntakeController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 // Authentication routes
 router.post("/", registerUser);
 router.post("/auth", authUser);
-router.post("/logout", logoutUser);
 router.post("/login", authUser);
+router.post("/logout", logoutUser);
 router.get("/me", protect, getUserProfile);
 
 // Profile routes
 router
   .route("/profile")
   .get(protect, getUserProfile)
-  .put(protect, updateUserProfile);
-
-// Goals routes - handled through profile updates
-router
-  .route("/goals")
-  .get(protect, getUserProfile)
-  .post(protect, updateUserProfile)
   .put(protect, updateUserProfile);
 
 // Settings routes

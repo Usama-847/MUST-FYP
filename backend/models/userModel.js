@@ -26,7 +26,6 @@ const userSchema = mongoose.Schema(
       type: String,
       enum: ['male', 'female', 'other'],
     },
-    // Goal-related fields
     goals: {
       weightGoal: {
         type: String,
@@ -61,7 +60,6 @@ const userSchema = mongoose.Schema(
         default: Date.now,
       },
     },
-    // Settings
     settings: {
       privacy: {
         makeProfilePublic: {
@@ -92,7 +90,6 @@ const userSchema = mongoose.Schema(
         },
       },
     },
-    // Profile completion status
     profileCompleted: {
       type: Boolean,
       default: false,
@@ -103,7 +100,6 @@ const userSchema = mongoose.Schema(
   }
 );
 
-// Hash password before saving
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     next();
@@ -112,12 +108,9 @@ userSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Update goals timestamp when goals are modified
 userSchema.pre("save", function (next) {
   if (this.isModified("goals")) {
     this.goals.updatedAt = new Date();
-    
-    // Check if profile is completed based on goals
     this.profileCompleted = !!(
       this.goals.weightGoal &&
       this.goals.currentWeight &&
@@ -129,7 +122,6 @@ userSchema.pre("save", function (next) {
   next();
 });
 
-// Compare password method
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

@@ -5,6 +5,30 @@ import "react-toastify/dist/ReactToastify.css";
 import { Link, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Leaderboard from "../components/Leaderboard";
+import { Line, Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -394,7 +418,7 @@ function Dashboard() {
 
         {activeTab === "analytics" && (
           <div className="bg-white rounded-lg shadow-md p-5">
-            <Analytics leaderboardData={leaderboardData} />
+            <Analytics leaderboardData={leaderboardData} progressData={progressData} />
           </div>
         )}
       </div>
@@ -553,7 +577,7 @@ const PlanProgressCard = ({ plan, onViewDetails, onContinue, onDelete }) => (
   </div>
 );
 
-const Analytics = ({ leaderboardData }) => {
+const Analytics = ({ leaderboardData, progressData }) => {
   const { userRank, stats } = leaderboardData;
 
   const getRankIcon = (rank) => {
@@ -580,6 +604,95 @@ const Analytics = ({ leaderboardData }) => {
       default:
         return "text-blue-600 bg-blue-100";
     }
+  };
+
+  // Prepare data for Progress Over Time chart
+  const progressChartData = {
+    labels: Object.keys(progressData).map((_, index) => `Plan ${index + 1}`),
+    datasets: [
+      {
+        label: "Progress (%)",
+        data: Object.values(progressData),
+        fill: false,
+        borderColor: "rgb(75, 192, 192)",
+        tension: 0.1,
+      },
+    ],
+  };
+
+  const progressChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: "Progress Over Time",
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 100,
+        title: {
+          display: true,
+          text: "Progress (%)",
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: "Workout Plans",
+        },
+      },
+    },
+  };
+
+  // Prepare data for Community Comparison chart
+  const comparisonChartData = {
+    labels: ["Your Score", "Community Average"],
+    datasets: [
+      {
+        label: "Score Comparison",
+        data: [
+          userRank?.averageScore || 0,
+          stats?.averageScore || 0,
+        ],
+        backgroundColor: [
+          "rgba(75, 192, 192, 0.6)",
+          "rgba(153, 102, 255, 0.6)",
+        ],
+        borderColor: [
+          "rgb(75, 192, 192)",
+          "rgb(153, 102, 255)",
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const comparisonChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: "Your Score vs Community",
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 100,
+        title: {
+          display: true,
+          text: "Score (%)",
+        },
+      },
+    },
   };
 
   return (
@@ -617,41 +730,20 @@ const Analytics = ({ leaderboardData }) => {
             </div>
           </div>
 
-          {/* Community Comparison */}
+          {/* Progress Over Time Chart */}
           <div className="bg-white rounded-lg p-4 border border-gray-200">
-            <h3 className="font-semibold text-gray-800 mb-2">Community Comparison</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-600 mb-2">Your Score vs Community</p>
-                <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
-                  <div
-                    className="bg-blue-600 h-2.5 rounded-full"
-                    style={{ width: `${Math.min(100, userRank.averageScore)}%` }}
-                  ></div>
-                </div>
-                <p className="text-sm text-gray-600">
-                  Your Score: <span className="font-bold">{userRank.averageScore}%</span>
-                </p>
-                <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
-                  <div
-                    className="bg-gray-600 h-2.5 rounded-full"
-                    style={{ width: `${Math.min(100, stats.averageScore)}%` }}
-                  ></div>
-                </div>
-                <p className="text-sm text-gray-600">
-                  Community Average: <span className="font-bold">{stats.averageScore}%</span>
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600 mb-2">Community Stats</p>
-                <p className="text-sm text-gray-600">
-                  Total Users: <span className="font-bold">{stats.totalUsers}</span>
-                </p>
-                <p className="text-sm text-gray-600">
-                  Total Plans: <span className="font-bold">{stats.totalPlans}</span>
-                </p>
-              </div>
-            </div>
+            <h3 className="font-semibold text-gray-800 mb-4">Progress Over Time</h3>
+            {Object.keys(progressData).length > 0 ? (
+              <Line data={progressChartData} options={progressChartOptions} />
+            ) : (
+              <p className="text-gray-500 text-center">No progress data available</p>
+            )}
+          </div>
+
+          {/* Community Comparison Chart */}
+          <div className="bg-white rounded-lg p-4 border border-gray-200">
+            <h3 className="font-semibold text-gray-800 mb-4">Community Comparison</h3>
+            <Bar data={comparisonChartData} options={comparisonChartOptions} />
           </div>
 
           {/* Progress Overview */}

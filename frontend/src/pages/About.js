@@ -30,9 +30,9 @@ const AboutUs = () => {
             </Col>
           </Row>
 
-          <Row className="mb-5">
+          <Row className="mb-5 text-center align-items-center">
             <Col md={6}>
-              <Card className="h-100 shadow-sm border-0">
+              <Card className="h-100 shadow-sm border-0 display-flex flex-column justify-content-between ">
                 <Card.Header as="h5" className="bg-primary text-white">Key Features</Card.Header>
                 <ListGroup variant="flush">
                   <ListGroup.Item>AI-Powered Meal & Workout Recommendations</ListGroup.Item>
@@ -41,23 +41,12 @@ const AboutUs = () => {
                   <ListGroup.Item>Custom AI-Based Workout Routines</ListGroup.Item>
                   <ListGroup.Item>Progress Dashboard with Visualization</ListGroup.Item>
                   <ListGroup.Item>Adaptive Planning Based on Feedback</ListGroup.Item>
-                  <ListGroup.Item>Responsive UI with Tailwind CSS</ListGroup.Item>
+
                 </ListGroup>
               </Card>
             </Col>
 
-            <Col md={6}>
-              <Card className="h-100 shadow-sm border-0">
-                <Card.Header as="h5" className="bg-success text-white">Tech Stack</Card.Header>
-                <ListGroup variant="flush">
-                  <ListGroup.Item><strong>Frontend:</strong> React.js, Tailwind CSS</ListGroup.Item>
-                  <ListGroup.Item><strong>Backend:</strong> Node.js, Express.js</ListGroup.Item>
-                  <ListGroup.Item><strong>Database:</strong> MongoDB Atlas</ListGroup.Item>
-                  <ListGroup.Item><strong>AI Integration:</strong> Google Gemini API</ListGroup.Item>
-                  <ListGroup.Item><strong>Hosting:</strong> Vercel (Frontend), Render (Backend)</ListGroup.Item>
-                </ListGroup>
-              </Card>
-            </Col>
+            
           </Row>
 
           <Row>

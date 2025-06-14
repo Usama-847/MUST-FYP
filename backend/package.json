@@ -1,5 +1,5 @@
 {
-  "name": "shape-up-app",
+  "name": "Fitly-ai",
   "version": "1.0.0",
   "description": "<h1 align=\"center\"> 🌐 FITLY AI </h1> <p align=\"center\"> MongoDB, Expressjs, React/Redux, Nodejs </p>",
   "type": "module",
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Shape-Up-NZ/shape-up-app.git"
+    "url": ""
   },
   "keywords": [],
   "author": "",

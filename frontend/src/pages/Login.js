@@ -39,10 +39,10 @@ const Login = () => {
   };
 
   return (
-    <div className="h-screen bg-[#160937] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="flex justify-end">
         <Link to="/">
-          <button className="bg-blue-500 text-white py-2 px-4 rounded">
+          <button className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors">
             Home
           </button>
         </Link>
@@ -51,25 +51,25 @@ const Login = () => {
         {/* Header Section */}
         <div className="text-center">
           <div className="flex items-center justify-center mb-8">
-            <span className="bg-gradient-to-r from-[#00f2fe] to-[#ff00ff] text-transparent bg-clip-text text-3xl font-bold">
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text text-3xl font-bold">
               FITLY AI
             </span>
           </div>
-          <h2 className="mt-6 text-4xl font-extrabold text-white">
+          <h2 className="mt-6 text-4xl font-extrabold text-gray-900">
             Welcome Back
           </h2>
-          <p className="mt-2 text-sm text-gray-300">
+          <p className="mt-2 text-sm text-gray-600">
             Transform your fitness journey with AI-powered insights
           </p>
         </div>
 
         {/* Login Form */}
-        <div className="bg-gray-900/50 rounded-2xl shadow-xl p-8 sm:p-10 backdrop-blur-lg border border-gray-800">
+        <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-10 border border-blue-200">
           <form onSubmit={submitHandler} className="space-y-6">
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-200"
+                className="block text-sm font-medium text-gray-700"
               >
                 Email address
               </label>
@@ -80,7 +80,7 @@ const Login = () => {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00f2fe] focus:border-[#00f2fe] transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 />
               </div>
             </div>
@@ -88,7 +88,7 @@ const Login = () => {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-200"
+                className="block text-sm font-medium text-gray-700"
               >
                 Password
               </label>
@@ -99,16 +99,16 @@ const Login = () => {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00f2fe] focus:border-[#00f2fe] transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 />
                 <div
                   className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <FaEyeSlash className="text-gray-400" />
+                    <FaEyeSlash className="text-gray-500" />
                   ) : (
-                    <FaEye className="text-gray-400" />
+                    <FaEye className="text-gray-500" />
                   )}
                 </div>
               </div>
@@ -123,19 +123,19 @@ const Login = () => {
             <button
               type="submit"
               className="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-lg 
-                        bg-gradient-to-r from-[#00f2fe] to-[#ff00ff] hover:from-[#00d4fe] hover:to-[#ff00dd] 
+                        bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 
                         text-white font-medium transition-all duration-300
-                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00f2fe]"
+                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               <BsLock className="mr-2 h-5 w-5" />
               Sign In
             </button>
 
-            <div className="text-center text-sm text-gray-400">
+            <div className="text-center text-sm text-gray-600">
               New to FITLY AI?{" "}
               <Link
                 to="/pages/register"
-                className="font-medium text-[#00f2fe] hover:text-[#ff00ff] transition-colors duration-200"
+                className="font-medium text-blue-600 hover:text-purple-600 transition-colors duration-200"
               >
                 Create an account
               </Link>

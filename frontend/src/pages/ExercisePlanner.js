@@ -204,8 +204,20 @@ const ExercisePlanner = () => {
     }
   };
 
+  const handleReset = () => {
+    setUserData({
+      weight: "",
+      height: "",
+      goal: "",
+      fitnessLevel: "",
+      selectedDays: [],
+      limitations: "",
+    });
+    setWorkoutPlan(null);
+  };
+
   return (
-    <div className="bg-gray-50">
+    <div className="bg-gray-50 min-h-screen">
       <Header />
       <ToastContainer position="top-right" autoClose={5000} />
 
@@ -222,47 +234,163 @@ const ExercisePlanner = () => {
         planTypeFilter="Exercise Plan" // Pass the plan type filter
       />
 
-      {/* Header - Reduced padding */}
-      <header className="bg-gradient-to-r from-blue-600 to-teal-500 text-white py-6 px-4">
-        <div className="container mx-auto text-center max-w-4xl">
-          <h1 className="text-2xl md:text-3xl font-bold mb-1">
-            AI Exercise Planner
-          </h1>
-          <p className="text-base md:text-lg opacity-90">
-            Customized workout plans powered by AI
-          </p>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-6 max-w-4xl">
-        {/* User Input Form - Made more compact */}
-        <div className="bg-white rounded-lg shadow-md p-5 mb-6">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-4">
-            <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-3 md:mb-0">
-              Create Your Personalized Workout Plan
-            </h2>
-            {userInfo && (
-              <button
-                onClick={handleViewSavedPlans}
-                className="px-4 py-1.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300"
-              >
-                View Your Saved Plans
-              </button>
-            )}
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Main Form Card */}
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          {/* Header Section */}
+          <div className="bg-blue-500 text-white p-6">
+            <div className="flex justify-between items-start">
+              <div>
+                <h1 className="text-2xl font-bold mb-2">AI Exercise Planner</h1>
+                <p className="text-blue-100">Generate personalized workout plans based on your goals</p>
+              </div>
+              {userInfo && (
+                <button
+                  onClick={handleViewSavedPlans}
+                  className="bg-white text-blue-500 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition duration-300"
+                >
+                  View Your Saved Plans
+                </button>
+              )}
+            </div>
           </div>
-          <UserForm
-            userData={userData}
-            handleInputChange={handleInputChange}
-            generateWorkoutPlan={generateWorkoutPlan}
-            isGenerating={isGenerating}
-            handleDaySelect={handleDaySelect}
-          />
+
+          {/* Form Section */}
+          <div className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Weight */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Weight (kg) <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="weight"
+                  value={userData.weight}
+                  onChange={handleInputChange}
+                  placeholder="Enter your weight"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                />
+              </div>
+
+              {/* Height */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Height (cm) <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="height"
+                  value={userData.height}
+                  onChange={handleInputChange}
+                  placeholder="Enter your height"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                />
+              </div>
+
+              {/* Fitness Goal */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Fitness Goal <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="goal"
+                  value={userData.goal}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                >
+                  <option value="">Select goal</option>
+                  <option value="weightLoss">Weight Loss</option>
+                  <option value="muscleGain">Muscle Gain</option>
+                  <option value="endurance">Endurance</option>
+                  <option value="strength">Strength</option>
+                  <option value="generalFitness">General Fitness</option>
+                </select>
+              </div>
+
+              {/* Fitness Level */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Fitness Level <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="fitnessLevel"
+                  value={userData.fitnessLevel}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                >
+                  <option value="">Select level</option>
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Workout Days */}
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Workout Days <span className="text-red-500">*</span>
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
+                {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => (
+                  <label key={day} className="flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={userData.selectedDays.includes(day)}
+                      onChange={(e) => handleDaySelect(day, e.target.checked)}
+                      className="sr-only"
+                    />
+                    <div className={`w-full px-2 py-1.5 text-xs font-medium rounded-md border-2 text-center transition-all ${
+                      userData.selectedDays.includes(day)
+                        ? 'bg-blue-500 text-white border-blue-500'
+                        : 'bg-white text-gray-700 border-gray-300 hover:border-blue-300'
+                    }`}>
+                      {day.slice(0, 3)}
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Limitations */}
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Limitations (optional)
+              </label>
+              <textarea
+                name="limitations"
+                value={userData.limitations}
+                onChange={handleInputChange}
+                placeholder="e.g., knee injury, back problems"
+                rows="2"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              />
+            </div>
+
+            {/* Buttons */}
+            <div className="mt-8 flex gap-4">
+              <button
+                onClick={generateWorkoutPlan}
+                disabled={isGenerating}
+                className="flex-1 bg-blue-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition duration-300"
+              >
+                {isGenerating ? "Generating..." : "Generate Workout Plan"}
+              </button>
+              <button
+                onClick={handleReset}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition duration-300"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Results Section - With ref for scrolling */}
         {workoutPlan && !isThinking && (
-          <div ref={resultsRef}>
-            <div className="bg-white rounded-lg shadow-md p-5 mb-6">
+          <div ref={resultsRef} className="mt-8">
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
               <div className="flex flex-col md:flex-row justify-between items-center mb-4">
                 <div className="mb-3 md:mb-0">
                   <h2 className="text-lg md:text-xl font-semibold text-gray-800">
@@ -274,7 +402,7 @@ const ExercisePlanner = () => {
                 </div>
                 <button
                   onClick={handleSaveClick}
-                  className="px-4 py-1.5 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition duration-300"
+                  className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition duration-300"
                 >
                   Save Plan
                 </button>
@@ -286,7 +414,7 @@ const ExercisePlanner = () => {
               />
             </div>
 
-            <div className="bg-teal-50 border-l-4 border-teal-500 rounded-lg shadow-md p-5">
+            <div className="bg-teal-50 border-l-4 border-teal-500 rounded-lg shadow-md p-6">
               <h2 className="text-lg md:text-xl font-semibold text-teal-600 mb-3">
                 AI-Recommended Tips For Success
               </h2>

@@ -2,9 +2,6 @@ import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import generateToken from "../utils/generateToken.js";
 
-// @desc    Auth user & get token
-// @route   POST /api/users/auth
-// @access  Public
 const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -30,9 +27,6 @@ const authUser = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Register a new user
-// @route   POST /api/users
-// @access  Public
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -69,9 +63,6 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Logout user / clear cookie
-// @route   POST /api/users/logout
-// @access  Public
 const logoutUser = (req, res) => {
   res.cookie("jwt", "", {
     httpOnly: true,
@@ -80,9 +71,6 @@ const logoutUser = (req, res) => {
   res.status(200).json({ message: "Logged out successfully" });
 };
 
-// @desc    Get user profile
-// @route   GET /api/users/profile
-// @access  Private
 const getUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
@@ -105,30 +93,83 @@ const getUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Update user profile (including goals)
-// @route   PUT /api/users/profile
-// @access  Private
 const updateUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (user) {
-    // Update basic profile fields
+    if (req.body.email && req.body.email !== user.email) {
+      const emailExists = await User.findOne({ email: req.body.email });
+      if (emailExists) {
+        res.status(400);
+        throw new Error('Email already in use');
+      }
+    }
+
+    if (req.body.dateOfBirth) {
+      const dob = new Date(req.body.dateOfBirth);
+      const minAgeDate = new Date();
+      minAgeDate.setFullYear(minAgeDate.getFullYear() - 13);
+      if (dob > minAgeDate) {
+        res.status(400);
+        throw new Error('User must be at least 13 years old');
+      }
+    }
+
+    if (req.body.phone && !/^\+?[\d\s-]{7,15}$/.test(req.body.phone)) {
+      res.status(400);
+      throw new Error('Invalid phone number format');
+    }
+
+    const validGenders = ['male', 'female', 'other'];
+    if (req.body.gender && !validGenders.includes(req.body.gender)) {
+      res.status(400);
+      throw new Error('Invalid gender value');
+    }
+
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
     user.dateOfBirth = req.body.dateOfBirth || user.dateOfBirth;
     user.phone = req.body.phone || user.phone;
     user.gender = req.body.gender || user.gender;
 
-    // Update password if provided
     if (req.body.password) {
       user.password = req.body.password;
     }
 
-    // Update goals if provided
     if (req.body.weightGoal || req.body.currentWeight || 
         req.body.targetWeight || req.body.timeframe || 
         req.body.activityLevel || req.body.dietType) {
       
+      const validWeightGoals = ['lose', 'gain', 'maintain'];
+      const validTimeframes = ['1month', '3months', '6months', '1year'];
+      const validActivityLevels = ['sedentary', 'light', 'moderate', 'active', 'very_active'];
+      const validDietTypes = ['balanced', 'keto', 'paleo', 'vegetarian', 'vegan', 'mediterranean'];
+
+      if (req.body.weightGoal && !validWeightGoals.includes(req.body.weightGoal)) {
+        res.status(400);
+        throw new Error('Invalid weight goal value');
+      }
+      if (req.body.timeframe && !validTimeframes.includes(req.body.timeframe)) {
+        res.status(400);
+        throw new Error('Invalid timeframe value');
+      }
+      if (req.body.activityLevel && !validActivityLevels.includes(req.body.activityLevel)) {
+        res.status(400);
+        throw new Error('Invalid activity level value');
+      }
+      if (req.body.dietType && !validDietTypes.includes(req.body.dietType)) {
+        res.status(400);
+        throw new Error('Invalid diet type value');
+      }
+      if (req.body.currentWeight && req.body.currentWeight < 0) {
+        res.status(400);
+        throw new Error('Current weight must be non-negative');
+      }
+      if (req.body.targetWeight && req.body.targetWeight < 0) {
+        res.status(400);
+        throw new Error('Target weight must be non-negative');
+      }
+
       user.goals = {
         ...user.goals,
         weightGoal: req.body.weightGoal || user.goals?.weightGoal,
@@ -140,7 +181,6 @@ const updateUserProfile = asyncHandler(async (req, res) => {
         updatedAt: new Date(),
       };
 
-      // If this is the first time setting goals, set createdAt
       if (!user.goals?.createdAt) {
         user.goals.createdAt = new Date();
       }
@@ -166,9 +206,6 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Change user password
-// @route   PUT /api/users/change-password
-// @access  Private
 const changePassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
@@ -187,9 +224,6 @@ const changePassword = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Get user settings
-// @route   GET /api/users/settings
-// @access  Private
 const getUserSettings = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id).select('-password');
 
@@ -214,9 +248,6 @@ const getUserSettings = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Update user settings
-// @route   PUT /api/users/settings
-// @access  Private
 const updateUserSettings = asyncHandler(async (req, res) => {
   const { settings } = req.body;
 
@@ -236,9 +267,6 @@ const updateUserSettings = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Reset user goals
-// @route   DELETE /api/users/reset-goals
-// @access  Private
 const resetUserGoals = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
@@ -259,9 +287,6 @@ const resetUserGoals = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Export user data
-// @route   GET /api/users/export-data
-// @access  Private
 const exportUserData = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id).select('-password');
 
@@ -289,16 +314,12 @@ const exportUserData = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Delete user account
-// @route   DELETE /api/users/delete-account
-// @access  Private
 const deleteUserAccount = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (user) {
     await User.findByIdAndDelete(req.user._id);
     
-    // Clear the JWT cookie
     res.cookie("jwt", "", {
       httpOnly: true,
       expires: new Date(0),

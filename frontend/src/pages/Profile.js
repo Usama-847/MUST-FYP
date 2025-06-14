@@ -7,7 +7,7 @@ import Header from "../components/Header";
 const Profile = () => {
   const dispatch = useDispatch();
   const { userInfo } = useSelector((state) => state.auth);
-  
+
   const [activeTab, setActiveTab] = useState("profile");
   const [goalData, setGoalData] = useState({
     weightGoal: "",
@@ -16,6 +16,13 @@ const Profile = () => {
     activityLevel: "",
     dietType: "",
     currentWeight: ""
+  });
+  const [profileData, setProfileData] = useState({
+    name: userInfo?.name || "",
+    email: userInfo?.email || "",
+    dateOfBirth: userInfo?.dateOfBirth || "",
+    phone: userInfo?.phone || "",
+    gender: userInfo?.gender || ""
   });
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -53,6 +60,13 @@ const Profile = () => {
     dispatch(setCredentials(userInfo));
     fetchUserGoals();
     fetchUserSettings();
+    setProfileData({
+      name: userInfo?.name || "",
+      email: userInfo?.email || "",
+      dateOfBirth: userInfo?.dateOfBirth || "",
+      phone: userInfo?.phone || "",
+      gender: userInfo?.gender || ""
+    });
   }, [userInfo, dispatch]);
 
   const fetchUserGoals = async () => {
@@ -63,25 +77,31 @@ const Profile = () => {
           Authorization: `Bearer ${userInfo.token}`
         }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
-        console.log("Fetched user data:", data);
         
         if (data.goals && Object.keys(data.goals).length > 0) {
-          const goals = data.goals;
           setGoalData({
-            weightGoal: goals.weightGoal || "",
-            targetWeight: goals.targetWeight || "",
-            timeframe: goals.timeframe || "",
-            activityLevel: goals.activityLevel || "",
-            dietType: goals.dietType || "",
-            currentWeight: goals.currentWeight || ""
+            weightGoal: data.goals.weightGoal || "",
+            targetWeight: data.goals.targetWeight || "",
+            timeframe: data.goals.timeframe || "",
+            activityLevel: data.goals.activityLevel || "",
+            dietType: data.goals.dietType || "",
+            currentWeight: data.goals.currentWeight || ""
           });
-          setHasExistingGoals(true);
+          setHasExistingGoals(data.profileCompleted);
         } else {
           setHasExistingGoals(false);
         }
+
+        setProfileData({
+          name: data.name || "",
+          email: data.email || "",
+          dateOfBirth: data.dateOfBirth || "",
+          phone: data.phone || "",
+          gender: data.gender || ""
+        });
       }
     } catch (err) {
       console.log("Error fetching user profile:", err);
@@ -98,7 +118,7 @@ const Profile = () => {
           Authorization: `Bearer ${userInfo.token}`
         }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         if (data.settings) {
@@ -127,7 +147,7 @@ const Profile = () => {
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         setMessage(hasExistingGoals ? "Goals updated successfully" : "Goals saved successfully");
         setHasExistingGoals(true);
@@ -145,7 +165,40 @@ const Profile = () => {
     }
   };
 
-  // Settings handlers
+  const handleProfileSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setMessage("");
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/users/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userInfo.token}`
+        },
+        body: JSON.stringify(profileData)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage("Profile updated successfully");
+        dispatch(setCredentials(data));
+        setTimeout(() => {
+          fetchUserGoals();
+        }, 1000);
+      } else {
+        setError(data.message || "Failed to update profile");
+      }
+    } catch (err) {
+      setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSettingsChange = async (section, setting, value) => {
     const newSettings = {
       ...settingsData,
@@ -154,9 +207,9 @@ const Profile = () => {
         [setting]: value
       }
     };
-    
+
     setSettingsData(newSettings);
-    
+
     try {
       const response = await fetch('/api/users/settings', {
         method: 'PUT',
@@ -166,7 +219,7 @@ const Profile = () => {
         },
         body: JSON.stringify({ settings: newSettings })
       });
-      
+
       if (response.ok) {
         setMessage("Settings updated successfully");
         setTimeout(() => setMessage(""), 3000);
@@ -181,12 +234,12 @@ const Profile = () => {
     e.preventDefault();
     setError("");
     setMessage("");
-    
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       setError("New passwords do not match");
       return;
     }
-    
+
     if (passwordData.newPassword.length < 6) {
       setError("New password must be at least 6 characters long");
       return;
@@ -206,7 +259,7 @@ const Profile = () => {
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         setMessage("Password changed successfully");
         setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
@@ -267,7 +320,7 @@ const Profile = () => {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        
+
         setMessage("Data exported successfully");
         setShowExportModal(false);
       } else {
@@ -289,7 +342,6 @@ const Profile = () => {
 
       if (response.ok) {
         dispatch(logout());
-        // Redirect to home page or login
         window.location.href = '/';
       } else {
         setError("Failed to delete account");
@@ -316,8 +368,16 @@ const Profile = () => {
               <p className="mt-1">{userInfo?.email || 'Not provided'}</p>
             </div>
             <div className="mb-3">
-              <strong>Member Since:</strong>
-              <p className="mt-1">{userInfo?.createdAt ? new Date(userInfo.createdAt).toLocaleDateString() : 'N/A'}</p>
+              <strong>Date of Birth:</strong>
+              <p className="mt-1">{userInfo?.dateOfBirth ? new Date(userInfo.dateOfBirth).toLocaleDateString() : 'Not provided'}</p>
+            </div>
+            <div className="mb-3">
+              <strong>Phone:</strong>
+              <p className="mt-1">{userInfo?.phone || 'Not provided'}</p>
+            </div>
+            <div className="mb-3">
+              <strong>Gender:</strong>
+              <p className="mt-1">{userInfo?.gender ? userInfo.gender.charAt(0).toUpperCase() + userInfo.gender.slice(1) : 'Not provided'}</p>
             </div>
           </Col>
           <Col md={6}>
@@ -334,6 +394,10 @@ const Profile = () => {
                   {hasExistingGoals ? 'Complete' : 'Incomplete - Set your goals'}
                 </span>
               </p>
+            </div>
+            <div className="mb-3">
+              <strong>Member Since:</strong>
+              <p className="mt-1">{userInfo?.createdAt ? new Date(userInfo.createdAt).toLocaleDateString() : 'N/A'}</p>
             </div>
             {hasExistingGoals && (
               <div className="mb-3">
@@ -392,7 +456,7 @@ const Profile = () => {
         {message && <Alert variant="success">{message}</Alert>}
         {error && <Alert variant="danger">{error}</Alert>}
         {loading && <Alert variant="info">Loading...</Alert>}
-        
+
         <Form onSubmit={handleGoalSubmit}>
           <Row>
             <Col md={6}>
@@ -403,7 +467,7 @@ const Profile = () => {
                   value={goalData.currentWeight}
                   onChange={(e) => setGoalData(prev => ({ ...prev, currentWeight: e.target.value }))}
                   placeholder="Enter current weight"
-                  min="1"
+                  min="0"
                   step="0.1"
                   required
                 />
@@ -430,7 +494,7 @@ const Profile = () => {
                   value={goalData.targetWeight}
                   onChange={(e) => setGoalData(prev => ({ ...prev, targetWeight: e.target.value }))}
                   placeholder="Enter target weight"
-                  min="1"
+                  min="0"
                   step="0.1"
                   required
                 />
@@ -527,6 +591,87 @@ const Profile = () => {
     </Card>
   );
 
+  const UpdateProfile = () => (
+    <Card>
+      <Card.Header>
+        <h4>Update Profile</h4>
+      </Card.Header>
+      <Card.Body>
+        {message && <Alert variant="success">{message}</Alert>}
+        {error && <Alert variant="danger">{error}</Alert>}
+        {loading && <Alert variant="info">Loading...</Alert>}
+
+        <Form onSubmit={handleProfileSubmit}>
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={profileData.name}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Enter your name"
+                  required
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Email</Form.Label>
+                <Form.Control
+                  type="email"
+                  value={profileData.email}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
+                  placeholder="Enter your email"
+                  required
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Date of Birth</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={profileData.dateOfBirth}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                />
+              </Form.Group>
+            </Col>
+
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Phone Number</Form.Label>
+                <Form.Control
+                  type="tel"
+                  value={profileData.phone}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
+                  placeholder="Enter your phone number"
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Gender</Form.Label>
+                <Form.Select
+                  value={profileData.gender}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, gender: e.target.value }))}
+                >
+                  <option value="">Select gender (optional)</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <div className="d-flex justify-content-end mt-4">
+            <Button variant="primary" type="submit" size="lg" disabled={loading}>
+              {loading ? 'Saving...' : 'Update Profile'}
+            </Button>
+          </div>
+        </Form>
+      </Card.Body>
+    </Card>
+  );
+
   const Settings = () => (
     <Card>
       <Card.Header>
@@ -535,27 +680,27 @@ const Profile = () => {
       <Card.Body>
         {message && <Alert variant="success">{message}</Alert>}
         {error && <Alert variant="danger">{error}</Alert>}
-        
+
         <Row>
           <Col md={6}>
             <Card className="mb-3">
               <Card.Body>
                 <h6>Privacy Settings</h6>
-                <Form.Check 
+                <Form.Check
                   type="checkbox"
                   label="Make profile public"
                   className="mb-2"
                   checked={settingsData.privacy.makeProfilePublic}
                   onChange={(e) => handleSettingsChange('privacy', 'makeProfilePublic', e.target.checked)}
                 />
-                <Form.Check 
+                <Form.Check
                   type="checkbox"
                   label="Allow goal sharing"
                   className="mb-2"
                   checked={settingsData.privacy.allowGoalSharing}
                   onChange={(e) => handleSettingsChange('privacy', 'allowGoalSharing', e.target.checked)}
                 />
-                <Form.Check 
+                <Form.Check
                   type="checkbox"
                   label="Enable progress notifications"
                   checked={settingsData.privacy.enableProgressNotifications}
@@ -568,21 +713,21 @@ const Profile = () => {
             <Card className="mb-3">
               <Card.Body>
                 <h6>Notification Preferences</h6>
-                <Form.Check 
+                <Form.Check
                   type="checkbox"
                   label="Daily reminders"
                   className="mb-2"
                   checked={settingsData.notifications.dailyReminders}
                   onChange={(e) => handleSettingsChange('notifications', 'dailyReminders', e.target.checked)}
                 />
-                <Form.Check 
+                <Form.Check
                   type="checkbox"
                   label="Weekly progress reports"
                   className="mb-2"
                   checked={settingsData.notifications.weeklyProgressReports}
                   onChange={(e) => handleSettingsChange('notifications', 'weeklyProgressReports', e.target.checked)}
                 />
-                <Form.Check 
+                <Form.Check
                   type="checkbox"
                   label="Goal achievement alerts"
                   checked={settingsData.notifications.goalAchievementAlerts}
@@ -592,33 +737,33 @@ const Profile = () => {
             </Card>
           </Col>
         </Row>
-        
+
         <hr />
-        
+
         <div className="mt-4">
           <h6>Account Actions</h6>
           <div className="d-flex gap-2 flex-wrap">
-            <Button 
-              variant="outline-primary" 
+            <Button
+              variant="outline-primary"
               onClick={() => setShowPasswordModal(true)}
             >
               Change Password
             </Button>
-            <Button 
-              variant="outline-secondary" 
+            <Button
+              variant="outline-secondary"
               onClick={() => setShowExportModal(true)}
             >
               Export Data
             </Button>
-            <Button 
-              variant="outline-warning" 
+            <Button
+              variant="outline-warning"
               onClick={() => setShowResetGoalsModal(true)}
               disabled={!hasExistingGoals}
             >
               Reset Goals
             </Button>
-            <Button 
-              variant="outline-danger" 
+            <Button
+              variant="outline-danger"
               onClick={() => setShowDeleteAccountModal(true)}
             >
               Delete Account
@@ -638,26 +783,34 @@ const Profile = () => {
             <Nav variant="tabs" className="mb-4 d-flex justify-content-between">
               <div className="d-flex">
                 <Nav.Item>
-                  <Nav.Link 
-                    active={activeTab === "profile"} 
+                  <Nav.Link
+                    active={activeTab === "profile"}
                     onClick={() => setActiveTab("profile")}
                   >
                     Profile Details
                   </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link 
-                    active={activeTab === "goals"} 
+                  <Nav.Link
+                    active={activeTab === "goals"}
                     onClick={() => setActiveTab("goals")}
                   >
                     Goal Setting
                   </Nav.Link>
                 </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link
+                    active={activeTab === "update"}
+                    onClick={() => setActiveTab("update")}
+                  >
+                    Update Profile
+                  </Nav.Link>
+                </Nav.Item>
               </div>
-              
+
               <Nav.Item>
-                <Nav.Link 
-                  active={activeTab === "settings"} 
+                <Nav.Link
+                  active={activeTab === "settings"}
                   onClick={() => setActiveTab("settings")}
                   className="ms-auto"
                 >
@@ -668,6 +821,7 @@ const Profile = () => {
 
             {activeTab === "profile" && <ProfileDetails />}
             {activeTab === "goals" && <GoalSetter />}
+            {activeTab === "update" && <UpdateProfile />}
             {activeTab === "settings" && <Settings />}
           </Col>
         </Row>
